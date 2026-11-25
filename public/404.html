@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Redirecting — LTXLDL Note &amp; Viva Arena</title>
+    <script>
+      (function () {
+        var base = '/LTXLDL_Note_Gr4/';
+        var path = window.location.pathname;
+        var rel = path.indexOf(base) === 0 ? path.slice(base.length) : path.replace(/^\/+/, '');
+        window.location.replace(base + (rel ? '#/' + rel : ''));
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
