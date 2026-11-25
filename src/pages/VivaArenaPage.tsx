@@ -50,26 +50,52 @@ export function VivaArenaPage({
 
   const [userNotes, setUserNotes] = useState<Record<string, string>>({});
   const [lockedIds, setLockedIds] = useState<Record<string, boolean>>({});
-  const [scores, setScores] = useState<Record<string, number>>({});
+  const [scores, setScores] = useState<Record<string, number | null>>({});
+  const [attemptId, setAttemptId] = useState<string>('');
   const [showHint, setShowHint] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [savedCurrentAttempt, setSavedCurrentAttempt] = useState(false);
+  const [openFollowUps, setOpenFollowUps] = useState<Record<string, boolean>>({});
 
   // Bank filters
   const [catFilter, setCatFilter] = useState<string>('ALL');
   const [diffFilter, setDiffFilter] = useState<string>('ALL');
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
+  const [bucketFilter, setBucketFilter] = useState<string>('ALL');
+  const [bankQuery, setBankQuery] = useState<string>('');
+  const [bankLimit, setBankLimit] = useState<number>(40);
   const [expandedBankId, setExpandedBankId] = useState<string | null>(requestedQ);
 
+  const isStrictRunning = phase === 'running' && mode === 'strict';
+
   useEffect(() => {
+    try {
+      sessionStorage.setItem('ltxldl_strict_viva_active', isStrictRunning ? '1' : '0');
+      window.dispatchEvent(new CustomEvent('ltxldl-strict-lock', { detail: { active: isStrictRunning } }));
+    } catch {
+      // ignore storage failure
+    }
+    return () => {
+      try {
+        sessionStorage.setItem('ltxldl_strict_viva_active', '0');
+        window.dispatchEvent(new CustomEvent('ltxldl-strict-lock', { detail: { active: false } }));
+      } catch {
+        // ignore
+      }
+    };
+  }, [isStrictRunning]);
+
+  useEffect(() => {
+    if (isStrictRunning) return;
     if (requestedQ && ALL_VIVA_QUESTIONS.some((q) => q.id === requestedQ)) {
       setTab('bank');
       setExpandedBankId(requestedQ);
     }
-  }, [requestedQ]);
+  }, [requestedQ, isStrictRunning]);
 
   const currentQuestion = examQuestions[currentIndex];
   const advanceRef = useRef<() => void>(() => {});
+  const questionDeadlineRef = useRef<number>(Date.now() + QUESTION_SECONDS * 1000);
 
   const handleNextOrFinish = () => {
     if (!currentQuestion) return;
@@ -82,6 +108,7 @@ export function VivaArenaPage({
       return;
     }
     setCurrentIndex((i) => i + 1);
+    questionDeadlineRef.current = Date.now() + QUESTION_SECONDS * 1000;
     setSecondsLeft(QUESTION_SECONDS); // Không cộng dồn thời gian thừa
   };
 
@@ -89,43 +116,74 @@ export function VivaArenaPage({
 
   useEffect(() => {
     if (phase !== 'running' || (mode === 'practice' && paused)) return;
+    questionDeadlineRef.current = Date.now() + secondsLeft * 1000;
 
     const timer = window.setInterval(() => {
-      setTotalElapsed((t) => t + 1);
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          advanceRef.current();
-          return QUESTION_SECONDS;
-        }
-        return prev - 1;
+      setTotalElapsed((t) => {
+        const nextTotal = t + 1;
+        return nextTotal;
       });
-    }, 1000);
+      const rem = Math.max(0, Math.ceil((questionDeadlineRef.current - Date.now()) / 1000));
+      setSecondsLeft(rem);
+    }, 500);
 
     return () => window.clearInterval(timer);
-  }, [phase, mode, paused]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, mode, paused, currentIndex]);
+
+  useEffect(() => {
+    if (phase === 'running' && secondsLeft === 0) {
+      advanceRef.current();
+    }
+  }, [phase, secondsLeft]);
 
   const startSession = (chosenMode: 'practice' | 'strict') => {
-    const pool = [...ALL_VIVA_QUESTIONS];
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
+    const practicedSet = new Set(progress.practicedVivaIds);
+    const shuffle = <T,>(arr: T[]) => {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+    // Ưu tiên phân tầng theo nhóm và các câu chưa luyện
+    const unpracticed = ALL_VIVA_QUESTIONS.filter((q) => !practicedSet.has(q.id));
+    const sourcePool = unpracticed.length >= TOTAL_EXAM_QUESTIONS ? unpracticed : ALL_VIVA_QUESTIONS;
+    const cats = shuffle(VIVA_CATEGORIES.map((c) => c.id));
+    const picked: VivaQuestion[] = [];
+    for (const c of cats) {
+      if (picked.length >= TOTAL_EXAM_QUESTIONS) break;
+      const cand = shuffle(sourcePool.filter((q) => q.category === c && !picked.some((p) => p.id === q.id)));
+      if (cand[0]) picked.push(cand[0]);
     }
-    const picked = pool.slice(0, TOTAL_EXAM_QUESTIONS);
+    if (picked.length < TOTAL_EXAM_QUESTIONS) {
+      const rest = shuffle(ALL_VIVA_QUESTIONS.filter((q) => !picked.some((p) => p.id === q.id)));
+      picked.push(...rest.slice(0, TOTAL_EXAM_QUESTIONS - picked.length));
+    }
+
     setMode(chosenMode);
     setExamQuestions(picked);
+    setAttemptId(`viva-${Date.now()}`);
     setCurrentIndex(0);
+    questionDeadlineRef.current = Date.now() + QUESTION_SECONDS * 1000;
     setSecondsLeft(QUESTION_SECONDS);
     setTotalElapsed(0);
     setPaused(false);
     setUserNotes({});
     setLockedIds({});
-    setScores(Object.fromEntries(picked.map((q) => [q.id, 1])));
+    setScores(Object.fromEntries(picked.map((q) => [q.id, null])));
     setShowHint(false);
     setShowAnswer(false);
     setSavedCurrentAttempt(false);
     setTab('arena');
     setPhase('running');
   };
+
+  const ungradedCount = useMemo(
+    () => examQuestions.filter((q) => scores[q.id] === null || scores[q.id] === undefined).length,
+    [examQuestions, scores]
+  );
 
   const totalSelfScore = useMemo(
     () => examQuestions.reduce((acc, q) => acc + (scores[q.id] ?? 0), 0),
@@ -140,31 +198,59 @@ export function VivaArenaPage({
   }, [examQuestions, scores]);
 
   const saveAttemptToTracker = () => {
-    if (savedCurrentAttempt) return;
+    if (savedCurrentAttempt || ungradedCount > 0) return;
+    const numericScores: Record<string, number> = Object.fromEntries(
+      examQuestions.map((q) => [q.id, scores[q.id] ?? 0])
+    );
     onRecordAttempt({
-      id: `viva-${Date.now()}`,
+      id: attemptId || `viva-${Date.now()}`,
       timestamp: new Date().toISOString(),
       mode,
       totalScore: totalSelfScore,
       maxScore: TOTAL_EXAM_QUESTIONS,
       questionIds: examQuestions.map((q) => q.id),
-      scoresByQuestion: scores,
+      scoresByQuestion: numericScores,
       weakCategories: diagnostics.weakCategories,
     });
     setSavedCurrentAttempt(true);
   };
 
   const filteredBank = useMemo(() => {
+    const qLower = bankQuery.trim().toLowerCase();
     return ALL_VIVA_QUESTIONS.filter((q) => {
       if (catFilter !== 'ALL' && q.category !== catFilter) return false;
       if (diffFilter !== 'ALL' && q.difficulty !== diffFilter) return false;
       if (typeFilter !== 'ALL' && q.qType !== typeFilter) return false;
+      if (bucketFilter !== 'ALL' && q.bucket !== bucketFilter) return false;
+      if (
+        qLower &&
+        !q.question.toLowerCase().includes(qLower) &&
+        !q.id.toLowerCase().includes(qLower) &&
+        !(q.codeLocation ?? '').toLowerCase().includes(qLower) &&
+        !q.relatedFiles.some((f) => f.toLowerCase().includes(qLower))
+      ) {
+        return false;
+      }
       return true;
     });
-  }, [catFilter, diffFilter, typeFilter]);
+  }, [catFilter, diffFilter, typeFilter, bucketFilter, bankQuery]);
+
+  const visibleBank = useMemo(() => {
+    if (expandedBankId && !filteredBank.slice(0, bankLimit).some((q) => q.id === expandedBankId)) {
+      const found = filteredBank.find((q) => q.id === expandedBankId);
+      return found ? [found, ...filteredBank.slice(0, bankLimit)] : filteredBank.slice(0, bankLimit);
+    }
+    return filteredBank.slice(0, bankLimit);
+  }, [filteredBank, bankLimit, expandedBankId]);
 
   const renderModelAnswer = (q: VivaQuestion) => (
     <div className="space-y-3 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 p-4">
+      {q.evaluationGoal && (
+        <div className="text-[11px] text-slate-500 dark:text-slate-400">
+          <strong>Mục tiêu kiểm tra:</strong> {q.evaluationGoal}{' '}
+          {q.codeLocation && <code className="ml-1 px-1.5 py-0.5 rounded bg-slate-200/70 dark:bg-slate-700">{q.codeLocation}</code>}
+        </div>
+      )}
       <div>
         <span className="font-bold text-[#0F9D8A] uppercase">A. Câu trả lời nhanh (60–90s): </span>
         <span className="text-slate-900 dark:text-slate-100 font-semibold">{q.quickAnswer}</span>
@@ -183,11 +269,37 @@ export function VivaArenaPage({
       </div>
       <div>
         <span className="font-bold text-amber-600 dark:text-amber-400 uppercase">E. Giảng viên có thể hỏi sâu tiếp: </span>
-        <ul className="list-disc pl-4 mt-1 text-slate-600 dark:text-slate-300">
-          {q.followUpQuestions.map((fq) => (
-            <li key={fq}>{fq}</li>
-          ))}
-        </ul>
+        {q.followUpQA && q.followUpQA.length > 0 ? (
+          <div className="space-y-1.5 mt-1.5">
+            {q.followUpQA.map((item, idx) => {
+              const key = `${q.id}-${idx}`;
+              const isOpen = Boolean(openFollowUps[key]);
+              return (
+                <div key={key} className="rounded-lg border border-amber-200/70 dark:border-amber-900/50 bg-white dark:bg-slate-900/60 p-2">
+                  <button
+                    type="button"
+                    onClick={() => setOpenFollowUps((prev) => ({ ...prev, [key]: !prev[key] }))}
+                    className="w-full text-left font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-between gap-2 cursor-pointer"
+                  >
+                    <span>• {item.q}</span>
+                    <span className="text-[10px] text-[#2563EB] shrink-0">{isOpen ? 'Ẩn gợi ý' : 'Xem đáp án'}</span>
+                  </button>
+                  {isOpen && (
+                    <div className="mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300">
+                      {item.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <ul className="list-disc pl-4 mt-1 text-slate-600 dark:text-slate-300">
+            {q.followUpQuestions.map((fq) => (
+              <li key={fq}>{fq}</li>
+            ))}
+          </ul>
+        )}
       </div>
       <div>
         <span className="font-bold text-rose-600 dark:text-rose-400 uppercase">F. Lỗi dễ mắc: </span>
@@ -451,15 +563,22 @@ export function VivaArenaPage({
                       Lưu ý: Đây là thang điểm tự luyện tập của website (0–1 điểm/câu), không thay thế rubric chấm chi tiết của giảng viên.
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 items-center">
                     <button
                       type="button"
                       onClick={saveAttemptToTracker}
-                      disabled={savedCurrentAttempt}
+                      disabled={savedCurrentAttempt || ungradedCount > 0}
+                      title={ungradedCount > 0 ? `Hãy tự chấm điểm cho đủ 5 câu (còn ${ungradedCount} câu chưa chấm)` : ''}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0F9D8A] disabled:opacity-50 text-white text-xs font-bold cursor-pointer"
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>{savedCurrentAttempt ? 'Đã lưu kết quả' : 'Lưu vào Study Tracker'}</span>
+                      <span>
+                        {savedCurrentAttempt
+                          ? 'Đã lưu kết quả'
+                          : ungradedCount > 0
+                          ? `Chấm nốt ${ungradedCount} câu để lưu`
+                          : 'Lưu vào Study Tracker'}
+                      </span>
                     </button>
                     <button
                       type="button"
@@ -564,10 +683,39 @@ export function VivaArenaPage({
       {/* TAB 2: QUESTION BANK */}
       {tab === 'bank' && (
         <div className="space-y-4">
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 flex flex-wrap gap-3 text-xs">
+          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 flex flex-wrap gap-2.5 text-xs items-center">
+            <input
+              type="text"
+              value={bankQuery}
+              onChange={(e) => {
+                setBankQuery(e.target.value);
+                setBankLimit(40);
+              }}
+              placeholder="Tìm câu hỏi, ID, file code..."
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 min-w-[190px] flex-1"
+            />
+            <select
+              value={bucketFilter}
+              onChange={(e) => {
+                setBucketFilter(e.target.value);
+                setBankLimit(40);
+              }}
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+            >
+              <option value="ALL">Mọi mảng kiến thức</option>
+              <option value="theory">Lý thuyết chuyên sâu</option>
+              <option value="code">Đọc hiểu Source Code</option>
+              <option value="trace">Truy vết thực thi</option>
+              <option value="scenario">Tình huống &amp; Thay đổi dữ liệu</option>
+              <option value="critique">Phản biện &amp; Câu hỏi gài</option>
+              <option value="storytelling">Storytelling &amp; KPI</option>
+            </select>
             <select
               value={catFilter}
-              onChange={(e) => setCatFilter(e.target.value)}
+              onChange={(e) => {
+                setCatFilter(e.target.value);
+                setBankLimit(40);
+              }}
               className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
             >
               <option value="ALL">Tất cả 10 nhóm (A–J)</option>
@@ -577,7 +725,10 @@ export function VivaArenaPage({
             </select>
             <select
               value={diffFilter}
-              onChange={(e) => setDiffFilter(e.target.value)}
+              onChange={(e) => {
+                setDiffFilter(e.target.value);
+                setBankLimit(40);
+              }}
               className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
             >
               <option value="ALL">Mọi mức độ</option>
@@ -587,21 +738,24 @@ export function VivaArenaPage({
             </select>
             <select
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
+              onChange={(e) => {
+                setTypeFilter(e.target.value);
+                setBankLimit(40);
+              }}
               className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
             >
               <option value="ALL">Mọi dạng câu hỏi</option>
-              {['Kiến thức', 'Tại sao', 'Đọc hiểu code', 'Truy vết', 'Tình huống', 'Phản biện', 'Phân tích kết quả', 'Câu hỏi gài'].map((t) => (
+              {['Kiến thức', 'Giải thích', 'Vận dụng', 'Tại sao', 'Đọc hiểu code', 'Truy vết', 'Tình huống', 'Phản biện', 'Phân tích kết quả', 'Câu hỏi gài'].map((t) => (
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
             <span className="ml-auto self-center font-semibold text-slate-500">
-              Hiển thị {filteredBank.length} / {ALL_VIVA_QUESTIONS.length} câu
+              Hiển thị {visibleBank.length} / {filteredBank.length} khớp ({ALL_VIVA_QUESTIONS.length} tổng)
             </span>
           </div>
 
           <div className="space-y-3">
-            {filteredBank.map((q) => {
+            {visibleBank.map((q) => {
               const open = expandedBankId === q.id;
               const practiced = progress.practicedVivaIds.includes(q.id);
               return (
@@ -671,6 +825,17 @@ export function VivaArenaPage({
               );
             })}
           </div>
+          {visibleBank.length < filteredBank.length && (
+            <div className="flex justify-center pt-2">
+              <button
+                type="button"
+                onClick={() => setBankLimit((n) => n + 50)}
+                className="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-[#2563EB] text-xs font-bold cursor-pointer"
+              >
+                Xem thêm 50 câu ({filteredBank.length - visibleBank.length} câu còn lại)
+              </button>
+            </div>
+          )}
         </div>
       )}
 

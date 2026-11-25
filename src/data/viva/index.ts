@@ -1,10 +1,24 @@
 import { VIVA_QUESTIONS_PART_1 } from './part1';
 import { VIVA_QUESTIONS_PART_2 } from './part2';
+import { VIVA_BASE_ENRICHMENT } from './enrichBase';
+import { VIVA_THEORY_BANK } from './theoryBank';
+import { VIVA_CODE_BANK } from './codeBank';
+import { VIVA_TRACE_BANK } from './traceBank';
 import type { VivaQuestion } from '../../types';
 
-export const ALL_VIVA_QUESTIONS: VivaQuestion[] = [
+const BASE_ENRICHED: VivaQuestion[] = [
   ...VIVA_QUESTIONS_PART_1,
   ...VIVA_QUESTIONS_PART_2,
+].map((q) => ({
+  ...q,
+  ...(VIVA_BASE_ENRICHMENT[q.id] ?? {}),
+}));
+
+export const ALL_VIVA_QUESTIONS: VivaQuestion[] = [
+  ...BASE_ENRICHED,
+  ...VIVA_THEORY_BANK,
+  ...VIVA_CODE_BANK,
+  ...VIVA_TRACE_BANK,
 ];
 
 export const VIVA_CATEGORIES = [
