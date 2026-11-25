@@ -103,11 +103,14 @@ export interface StoryItem {
   figureUnit: string;
   sampleSize: string;
   dataSource: string;
+  kpiFormula?: string;
+  chartReadingGuide?: string;
   keyMetrics: { label: string; value: string; detail: string }[];
   methodExplanation: string;
   conclusion: string;
   stakeholderImplication: string;
   limitations: string[];
+  defenseQuestions?: { q: string; a: string }[];
 }
 
 export interface CritiqueScenario {
@@ -124,6 +127,42 @@ export type VivaCategory =
 
 export type VivaDifficulty = 'Cơ bản' | 'Vận dụng' | 'Nâng cao';
 
+export type VivaLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+export type VivaBucket =
+  | 'theory'
+  | 'code'
+  | 'trace'
+  | 'scenario'
+  | 'critique'
+  | 'storytelling';
+
+export type VivaTopic =
+  | 'Python'
+  | 'NumPy'
+  | 'pandas'
+  | 'File I/O'
+  | 'API'
+  | 'SQL'
+  | 'Regex'
+  | 'Datetime'
+  | 'Data Cleaning'
+  | 'QA'
+  | 'LLM'
+  | 'Baseline'
+  | 'Evaluation'
+  | 'KPI'
+  | 'Visualization'
+  | 'Storytelling'
+  | 'Architecture'
+  | 'Code Trace'
+  | 'Filter';
+
+export interface FollowUpQA {
+  q: string;
+  a: string;
+}
+
 export type VivaQuestionType =
   | 'Kiến thức'
   | 'Tại sao'
@@ -132,25 +171,92 @@ export type VivaQuestionType =
   | 'Tình huống'
   | 'Phản biện'
   | 'Phân tích kết quả'
-  | 'Câu hỏi gài';
+  | 'Câu hỏi gài'
+  | 'Giải thích'
+  | 'Vận dụng';
 
 export interface VivaQuestion {
   id: string;
   category: VivaCategory;
   categoryLabel: string;
+  bucket?: VivaBucket;
+  topics?: VivaTopic[];
+  level?: VivaLevel;
+  levelLabel?: string;
   difficulty: VivaDifficulty;
   qType: VivaQuestionType;
+  evaluationGoal?: string;
   question: string;
   hint?: string;
   codeBlock?: { file: string; lines?: string; code: string };
+  codeLocation?: string;
   figureRef?: string;
   quickAnswer: string;
   explanation: string;
   projectLink: string;
   proofExample: string;
   followUpQuestions: string[];
+  followUpQA?: FollowUpQA[];
   commonMistakes: string[];
   relatedFiles: string[];
+}
+
+export interface CodeFunctionDoc {
+  id: string;
+  file: string;
+  name: string;
+  kind: 'function' | 'class';
+  lineStart: number;
+  lineEnd: number;
+  signature: string;
+  purpose: string;
+  flow: string[];
+  input: string;
+  output: string;
+  libraries: string[];
+  example: string;
+  usage: string;
+  potentialBugs: string[];
+  viva: { q: string; a: string }[];
+  code: string;
+}
+
+export interface CodeTraceStep {
+  lineNumber: number;
+  highlightLines: number[];
+  variables: { name: string; value: string; dtype?: string }[];
+  dfSummary?: string;
+  explanation: string;
+}
+
+export interface CodeTraceScenario {
+  id: string;
+  title: string;
+  file: string;
+  lineRange: string;
+  startLine: number;
+  code: string;
+  predictQuestion: string;
+  predictOptions: string[];
+  correctOptionIndex: number;
+  predictExplanation: string;
+  steps: CodeTraceStep[];
+  whatIfVariants: { condition: string; result: string }[];
+}
+
+export interface ModuleDependencyNode {
+  id: string;
+  file: string;
+  order: number;
+  role: string;
+  callsTo: string[];
+  calledBy: string[];
+  imports: string[];
+  keyFunctions: string[];
+  dataIn: string[];
+  dataOut: string[];
+  commonErrors: string[];
+  requiredKnowledge: string[];
 }
 
 export interface FlashcardItem {
@@ -218,6 +324,8 @@ export interface StudyProgressState {
   practicedVivaIds: string[];
   vivaHistory: VivaAttemptRecord[];
   checkedRevisionItems: string[];
+  reviewedFunctions?: string[];
+  completedTraces?: string[];
   lastVisitedRoute: NavRouteId;
   lastVisitedLabel: string;
   lastStudiedAt: string;

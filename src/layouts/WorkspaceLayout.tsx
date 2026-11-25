@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -28,6 +28,7 @@ import type { NavRouteId, StudyProgressState } from '../types';
 import { CommandSearch } from '../components/CommandSearch';
 import { ALL_LESSONS } from '../data/lessons';
 import { FLASHCARDS_DATA } from '../data/flashcardsData';
+import { QUIZZES_DATA } from '../data/quizzesData';
 import { ALL_VIVA_QUESTIONS } from '../data/viva';
 
 interface WorkspaceLayoutProps {
@@ -63,8 +64,33 @@ export function WorkspaceLayout({
 }: WorkspaceLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [strictLocked, setStrictLocked] = useState(
+    () => sessionStorage.getItem('ltxldl_strict_viva_active') === '1'
+  );
   const location = useLocation();
   const navigate = useNavigate();
+
+  const closeSearch = useCallback(() => setSearchOpen(false), []);
+
+  useEffect(() => {
+    const syncLock = () => {
+      setStrictLocked(sessionStorage.getItem('ltxldl_strict_viva_active') === '1');
+    };
+    window.addEventListener('ltxldl-strict-lock', syncLock);
+    return () => window.removeEventListener('ltxldl-strict-lock', syncLock);
+  }, []);
+
+  const safeNavigate = (to: string) => {
+    if (strictLocked && !to.startsWith('/viva')) {
+      const ok = window.confirm(
+        'Bạn đang trong phiên thi Strict Viva 90s! Thoát ra ngoài sẽ kết thúc phiên thi hiện tại. Bạn có chắc muốn rời phòng thi?'
+      );
+      if (!ok) return;
+      sessionStorage.removeItem('ltxldl_strict_viva_active');
+      window.dispatchEvent(new Event('ltxldl-strict-lock'));
+    }
+    navigate(to);
+  };
 
   const currentIdx = Math.max(
     0,
@@ -86,6 +112,7 @@ export function WorkspaceLayout({
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
+        if (sessionStorage.getItem('ltxldl_strict_viva_active') === '1') return;
         setSearchOpen((prev) => !prev);
       }
     };
@@ -96,9 +123,11 @@ export function WorkspaceLayout({
   const readinessPct = Math.min(
     100,
     Math.round(
-      ((progress.completedLessons.length / ALL_LESSONS.length) * 0.35 +
-        (progress.rememberedFlashcards.length / FLASHCARDS_DATA.length) * 0.25 +
-        (progress.practicedVivaIds.length / Math.min(30, ALL_VIVA_QUESTIONS.length)) * 0.4) *
+      ((progress.completedLessons.length / ALL_LESSONS.length) * 0.25 +
+        (progress.rememberedFlashcards.length / FLASHCARDS_DATA.length) * 0.2 +
+        (progress.correctQuizIds.length / Math.max(1, QUIZZES_DATA.length)) * 0.2 +
+        (Math.min(progress.practicedVivaIds.length, 60) / 60) * 0.25 +
+        (Math.min(progress.checkedRevisionItems.length, 9) / 9) * 0.1) *
         100
     )
   );
@@ -151,6 +180,12 @@ export function WorkspaceLayout({
                     <NavLink
                       to={item.path}
                       end={item.path === '/'}
+                      onClick={(e) => {
+                        if (strictLocked && item.path !== '/viva') {
+                          e.preventDefault();
+                          safeNavigate(item.path);
+                        }
+                      }}
                       className={({ isActive }) =>
                         `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-colors ${
                           isActive
@@ -262,7 +297,7 @@ export function WorkspaceLayout({
 
               <button
                 type="button"
-                onClick={() => navigate(resumeRoute)}
+                onClick={() => safeNavigate(resumeRoute)}
                 className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-blue-700 text-white text-xs font-medium transition-colors cursor-pointer"
                 title={`Tiếp tục: ${progress.lastVisitedLabel}`}
               >
@@ -291,7 +326,7 @@ export function WorkspaceLayout({
             {prevNav ? (
               <button
                 type="button"
-                onClick={() => navigate(prevNav.path)}
+                onClick={() => safeNavigate(prevNav.path)}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-[#2563EB] text-sm font-medium transition-colors cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4 text-slate-400" />
@@ -307,7 +342,7 @@ export function WorkspaceLayout({
             {nextNav && (
               <button
                 type="button"
-                onClick={() => navigate(nextNav.path)}
+                onClick={() => safeNavigate(nextNav.path)}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-[#2563EB] text-sm font-medium transition-colors cursor-pointer ml-auto"
               >
                 <div className="text-right">
@@ -321,7 +356,7 @@ export function WorkspaceLayout({
         </main>
       </div>
 
-      <CommandSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <CommandSearch open={searchOpen} onClose={closeSearch} />
     </div>
   );
 }

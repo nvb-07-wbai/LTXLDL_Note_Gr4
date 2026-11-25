@@ -22,7 +22,9 @@ const CHECKLIST = [
 
 export function QuickRevisionPage({ checkedItems, onToggleCheck }: QuickRevisionPageProps) {
   const navigate = useNavigate();
-  const top30 = ALL_VIVA_QUESTIONS.slice(0, 30);
+  // Chọn đều 3 câu tiêu biểu ở mỗi nhóm A–J (3 × 10 = 30 câu vàng phủ toàn bộ dự án)
+  const cats = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'] as const;
+  const top30 = cats.flatMap((c) => ALL_VIVA_QUESTIONS.filter((q) => q.category === c).slice(0, 3));
 
   return (
     <div className="space-y-6">
@@ -34,7 +36,7 @@ export function QuickRevisionPage({ checkedItems, onToggleCheck }: QuickRevision
           Toàn bộ kiến thức cốt lõi trên một màn hình
         </h1>
         <p className="text-sm text-slate-100/90 mt-1">
-          Pipeline 8 bước · Hàm quan trọng · Công thức KPI · Lỗi phải tránh · 30 câu hỏi vàng · Checklist trước giờ G.
+          9 chặng (8 mô-đun Python + Báo cáo) · 83 hàm/class · Công thức KPI · Lỗi phải tránh · 30 câu hỏi vàng (phủ đủ 10 nhóm A–J) · Checklist trước giờ G.
         </p>
       </div>
 
@@ -139,7 +141,7 @@ export function QuickRevisionPage({ checkedItems, onToggleCheck }: QuickRevision
               onClick={() => navigate(`/viva?q=${q.id}`)}
               className="text-left p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 hover:border-[#2563EB] bg-slate-50/50 dark:bg-slate-800/40 text-xs cursor-pointer transition-colors"
             >
-              <div className="font-bold text-[#2563EB]">
+              <div className="font-bold text-[#2563EB] dark:text-blue-400">
                 #{i + 1} · Nhóm {q.category} ({q.qType})
               </div>
               <div className="text-slate-800 dark:text-slate-200 mt-0.5 line-clamp-2">{q.question}</div>

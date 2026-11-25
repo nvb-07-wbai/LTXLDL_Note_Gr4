@@ -12,19 +12,37 @@ const DEFAULT_STATE: StudyProgressState = {
   practicedVivaIds: [],
   vivaHistory: [],
   checkedRevisionItems: [],
-  lastVisitedRoute: 'overview',
-  lastVisitedLabel: 'Overview — Bảng điều khiển',
+  reviewedFunctions: [],
+  completedTraces: [],
+  lastVisitedRoute: 'roadmap',
+  lastVisitedLabel: 'Study Roadmap — Lộ trình ôn tập',
   lastStudiedAt: new Date().toISOString(),
 };
+
+function asStringArray(val: unknown): string[] {
+  return Array.isArray(val) ? val.filter((x): x is string => typeof x === 'string') : [];
+}
 
 function loadInitialState(): StudyProgressState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_STATE;
-    const parsed = JSON.parse(raw) as Partial<StudyProgressState>;
+    const parsed = JSON.parse(raw) as Partial<StudyProgressState> | null;
+    if (!parsed || typeof parsed !== 'object') return DEFAULT_STATE;
     return {
-      ...DEFAULT_STATE,
-      ...parsed,
+      completedLessons: asStringArray(parsed.completedLessons),
+      rememberedFlashcards: asStringArray(parsed.rememberedFlashcards),
+      wrongFlashcards: asStringArray(parsed.wrongFlashcards),
+      completedQuizIds: asStringArray(parsed.completedQuizIds),
+      correctQuizIds: asStringArray(parsed.correctQuizIds),
+      practicedVivaIds: asStringArray(parsed.practicedVivaIds),
+      vivaHistory: Array.isArray(parsed.vivaHistory) ? parsed.vivaHistory.slice(0, 50) : [],
+      checkedRevisionItems: asStringArray(parsed.checkedRevisionItems),
+      reviewedFunctions: asStringArray(parsed.reviewedFunctions),
+      completedTraces: asStringArray(parsed.completedTraces),
+      lastVisitedRoute: typeof parsed.lastVisitedRoute === 'string' ? parsed.lastVisitedRoute : DEFAULT_STATE.lastVisitedRoute,
+      lastVisitedLabel: typeof parsed.lastVisitedLabel === 'string' ? parsed.lastVisitedLabel : DEFAULT_STATE.lastVisitedLabel,
+      lastStudiedAt: typeof parsed.lastStudiedAt === 'string' ? parsed.lastStudiedAt : DEFAULT_STATE.lastStudiedAt,
     };
   } catch {
     return DEFAULT_STATE;
@@ -91,10 +109,39 @@ export function useStudyTracker() {
   const recordVivaAttempt = useCallback((attempt: VivaAttemptRecord) => {
     setState((prev) => {
       const practiced = new Set([...prev.practicedVivaIds, ...attempt.questionIds]);
+      const existsIdx = prev.vivaHistory.findIndex((h) => h.id === attempt.id);
+      const nextHistory =
+        existsIdx >= 0
+          ? prev.vivaHistory.map((h, idx) => (idx === existsIdx ? attempt : h))
+          : [attempt, ...prev.vivaHistory];
       return {
         ...prev,
         practicedVivaIds: Array.from(practiced),
-        vivaHistory: [attempt, ...prev.vivaHistory].slice(0, 25),
+        vivaHistory: nextHistory.slice(0, 50),
+        lastStudiedAt: new Date().toISOString(),
+      };
+    });
+  }, []);
+
+  const markFunctionReviewed = useCallback((fnId: string) => {
+    setState((prev) => {
+      const curr = prev.reviewedFunctions ?? [];
+      if (curr.includes(fnId)) return prev;
+      return {
+        ...prev,
+        reviewedFunctions: [...curr, fnId],
+        lastStudiedAt: new Date().toISOString(),
+      };
+    });
+  }, []);
+
+  const markTraceCompleted = useCallback((traceId: string) => {
+    setState((prev) => {
+      const curr = prev.completedTraces ?? [];
+      if (curr.includes(traceId)) return prev;
+      return {
+        ...prev,
+        completedTraces: [...curr, traceId],
         lastStudiedAt: new Date().toISOString(),
       };
     });
@@ -127,12 +174,14 @@ export function useStudyTracker() {
   }, []);
 
   const setLastVisited = useCallback((route: NavRouteId, label: string) => {
-    setState((prev) => ({
-      ...prev,
-      lastVisitedRoute: route,
-      lastVisitedLabel: label,
-      lastStudiedAt: new Date().toISOString(),
-    }));
+    setState((prev) => {
+      if (prev.lastVisitedRoute === route && prev.lastVisitedLabel === label) return prev;
+      return {
+        ...prev,
+        lastVisitedRoute: route,
+        lastVisitedLabel: label,
+      };
+    });
   }, []);
 
   const resetProgress = useCallback(() => {
@@ -147,6 +196,8 @@ export function useStudyTracker() {
     recordVivaAttempt,
     toggleVivaQuestionPracticed,
     toggleRevisionCheck,
+    markFunctionReviewed,
+    markTraceCompleted,
     setLastVisited,
     resetProgress,
   };

@@ -6,9 +6,18 @@ interface CodeBlockProps {
   title?: string;
   language?: string;
   maxHeight?: string;
+  startLine?: number;
+  highlightLines?: number[];
 }
 
-export function CodeBlock({ code, title, language = 'python', maxHeight = 'max-h-[460px]' }: CodeBlockProps) {
+export function CodeBlock({
+  code,
+  title,
+  language = 'python',
+  maxHeight = 'max-h-[460px]',
+  startLine = 1,
+  highlightLines = [],
+}: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -18,6 +27,7 @@ export function CodeBlock({ code, title, language = 'python', maxHeight = 'max-h
   };
 
   const lines = code.split('\n');
+  const hlSet = new Set(highlightLines);
 
   return (
     <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/80 bg-[#0F172A] text-slate-100 shadow-sm">
@@ -38,14 +48,29 @@ export function CodeBlock({ code, title, language = 'python', maxHeight = 'max-h
       <div className={`overflow-auto ${maxHeight} p-3 text-[12.5px] leading-relaxed font-mono`}>
         <table className="w-full border-collapse">
           <tbody>
-            {lines.map((line, idx) => (
-              <tr key={idx} className="hover:bg-slate-800/50">
-                <td className="select-none pr-3 text-right text-slate-500 w-8 align-top text-[11px]">
-                  {idx + 1}
-                </td>
-                <td className="whitespace-pre text-slate-100">{line}</td>
-              </tr>
-            ))}
+            {lines.map((line, idx) => {
+              const absLine = startLine + idx;
+              const isHighlighted = hlSet.has(absLine) || hlSet.has(idx + 1);
+              return (
+                <tr
+                  key={idx}
+                  className={
+                    isHighlighted
+                      ? 'bg-[#0F9D8A]/25 border-l-2 border-[#0F9D8A]'
+                      : 'hover:bg-slate-800/50'
+                  }
+                >
+                  <td
+                    className={`select-none pr-3 text-right w-10 align-top text-[11px] ${
+                      isHighlighted ? 'text-teal-300 font-bold' : 'text-slate-500'
+                    }`}
+                  >
+                    {absLine}
+                  </td>
+                  <td className="whitespace-pre text-slate-100">{line}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

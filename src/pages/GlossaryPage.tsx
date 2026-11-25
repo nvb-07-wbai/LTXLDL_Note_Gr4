@@ -10,7 +10,10 @@ export function GlossaryPage() {
 
   useEffect(() => {
     const q = searchParams.get('q');
-    if (q) setQuery(q);
+    if (q) {
+      setQuery(q);
+      setLetter('ALL');
+    }
   }, [searchParams]);
 
   const sorted = useMemo(
@@ -75,35 +78,41 @@ export function GlossaryPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filtered.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-2 text-xs"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <h2 className="text-base font-extrabold text-[#2563EB] dark:text-blue-400 font-mono">
-                {item.term}
-              </h2>
-              <span className="px-2 py-0.5 rounded bg-[#E7F6F2] dark:bg-teal-950/60 text-[#0F9D8A] font-semibold shrink-0">
-                {item.relatedLesson}
-              </span>
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 text-center text-sm text-slate-500">
+          Không tìm thấy thuật ngữ nào khớp với "{query}". Hãy thử bấm nút chữ cái <button type="button" onClick={() => { setQuery(''); setLetter('ALL'); }} className="text-[#2563EB] dark:text-blue-400 underline font-semibold cursor-pointer">ALL</button>.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filtered.map((item) => (
+            <div
+              key={item.id}
+              className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-2 text-xs"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <h2 className="text-base font-extrabold text-[#2563EB] dark:text-blue-400 font-mono">
+                  {item.term}
+                </h2>
+                <span className="px-2 py-0.5 rounded bg-[#E7F6F2] dark:bg-teal-950/60 text-[#0F9D8A] dark:text-teal-300 font-semibold shrink-0">
+                  {item.relatedLesson}
+                </span>
+              </div>
+              <p className="text-sm text-slate-800 dark:text-slate-100 font-medium">
+                {item.viExplanation}
+              </p>
+              <p className="text-slate-600 dark:text-slate-300">
+                <strong>Ý nghĩa:</strong> {item.significance}
+              </p>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 font-mono text-[11px] text-slate-700 dark:text-slate-300">
+                <strong>Ví dụ:</strong> {item.example}
+              </div>
+              <div className="text-slate-500 dark:text-slate-400">
+                <strong>Trong BTL:</strong> {item.projectApp}
+              </div>
             </div>
-            <p className="text-sm text-slate-800 dark:text-slate-100 font-medium">
-              {item.viExplanation}
-            </p>
-            <p className="text-slate-600 dark:text-slate-300">
-              <strong>Ý nghĩa:</strong> {item.significance}
-            </p>
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 font-mono text-[11px] text-slate-700 dark:text-slate-300">
-              <strong>Ví dụ:</strong> {item.example}
-            </div>
-            <div className="text-slate-500">
-              <strong>Trong BTL:</strong> {item.projectApp}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

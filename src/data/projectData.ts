@@ -157,15 +157,21 @@ export const AREA_KPI_DATA = [
 ];
 
 export const NEIGHBOURHOOD_TOP_DATA = [
-  { name: 'Cuauhtémoc', listings: 525, llmReviews: 749, meanPriceT4: 3529.04, medianPriceT4: 2215.25, meanPpgT4: 1118.1, medianPpgT4: 678.0, riqrPriceT4: 0.8772, riqrPpgT4: 0.776, compAmenities: 0.0187, compMixAmenities: 0.1482, compNoise: 0.0401, compMixNoise: 0.0814 },
-  { name: 'Miguel Hidalgo', listings: 161, llmReviews: 150, meanPriceT4: 3255.49, medianPriceT4: 2339.42, meanPpgT4: 924.14, medianPpgT4: 706.12, riqrPriceT4: 1.0531, riqrPpgT4: 0.7073, compAmenities: 0.0067, compMixAmenities: 0.1, compNoise: 0.0267, compMixNoise: 0.0533 },
-  { name: 'Benito Juárez', listings: 95, llmReviews: 37, meanPriceT4: 2038.39, medianPriceT4: 1632.0, meanPpgT4: 673.43, medianPpgT4: 572.0, riqrPriceT4: 0.7685, riqrPpgT4: 0.7802, compAmenities: 0.027, compMixAmenities: 0.0811, compNoise: 0.0, compMixNoise: 0.0541 },
-  { name: 'Coyoacán', listings: 53, llmReviews: 21, meanPriceT4: 1821.23, medianPriceT4: 1568.0, meanPpgT4: 677.43, medianPpgT4: 601.16, riqrPriceT4: 0.5888, riqrPpgT4: 0.64, compAmenities: 0.0, compMixAmenities: 0.0952, compNoise: 0.0, compMixNoise: 0.0 },
-  { name: 'Venustiano Carranza', listings: 36, llmReviews: 17, meanPriceT4: 1721.28, medianPriceT4: 1233.89, meanPpgT4: 426.29, medianPpgT4: 357.6, riqrPriceT4: 0.6094, riqrPpgT4: 0.7701, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.1176, compMixNoise: 0.1176 },
-  { name: 'Álvaro Obregón', listings: 29, llmReviews: 6, meanPriceT4: 1920.1, medianPriceT4: 1753.5, meanPpgT4: 661.14, medianPpgT4: 564.2, riqrPriceT4: 0.4934, riqrPpgT4: 0.787, compAmenities: 0.1667, compMixAmenities: 0.3333, compNoise: 0.0, compMixNoise: 0.0 },
-  { name: 'Tlalpan', listings: 23, llmReviews: 4, meanPriceT4: 2319.31, medianPriceT4: 1255.4, meanPpgT4: 580.83, medianPpgT4: 452.61, riqrPriceT4: 1.3946, riqrPpgT4: 1.0995, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.0, compMixNoise: 0.0 },
-  { name: 'Cuajimalpa de Morelos', listings: 15, llmReviews: 3, meanPriceT4: 3808.42, medianPriceT4: 2410.0, meanPpgT4: 768.18, medianPpgT4: 594.42, riqrPriceT4: 0.9322, riqrPpgT4: 0.8135, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.0, compMixNoise: 0.0 },
-  { name: 'Xochimilco', listings: 5, llmReviews: 0, meanPriceT4: 3847.75, medianPriceT4: 2055.0, meanPpgT4: 521.29, medianPpgT4: 376.59, riqrPriceT4: 2.2642, riqrPpgT4: 0.4208, compAmenities: 0, compMixAmenities: 0, compNoise: 0, compMixNoise: 0 },
+  { name: 'Cuauhtémoc', listings: 525, validPriceT4: 514, llmReviews: 749, meanPriceT4: 3529.04, medianPriceT4: 2215.25, meanPpgT4: 1118.1, medianPpgT4: 678.0, riqrPriceT4: 0.8772, riqrPpgT4: 0.776, compAmenities: 0.0187, compMixAmenities: 0.1482, compNoise: 0.0401, compMixNoise: 0.0814 },
+  { name: 'Miguel Hidalgo', listings: 161, validPriceT4: 158, llmReviews: 150, meanPriceT4: 3255.49, medianPriceT4: 2339.42, meanPpgT4: 924.14, medianPpgT4: 706.12, riqrPriceT4: 1.0531, riqrPpgT4: 0.7073, compAmenities: 0.0067, compMixAmenities: 0.1, compNoise: 0.0267, compMixNoise: 0.0533 },
+  { name: 'Benito Juárez', listings: 95, validPriceT4: 93, llmReviews: 37, meanPriceT4: 2038.39, medianPriceT4: 1632.0, meanPpgT4: 673.43, medianPpgT4: 572.0, riqrPriceT4: 0.7685, riqrPpgT4: 0.7802, compAmenities: 0.027, compMixAmenities: 0.0811, compNoise: 0.0, compMixNoise: 0.0541 },
+  { name: 'Coyoacán', listings: 53, validPriceT4: 51, llmReviews: 21, meanPriceT4: 1821.23, medianPriceT4: 1568.0, meanPpgT4: 677.43, medianPpgT4: 601.16, riqrPriceT4: 0.5888, riqrPpgT4: 0.64, compAmenities: 0.0, compMixAmenities: 0.0952, compNoise: 0.0, compMixNoise: 0.0 },
+  { name: 'Venustiano Carranza', listings: 36, validPriceT4: 35, llmReviews: 17, meanPriceT4: 1721.28, medianPriceT4: 1233.89, meanPpgT4: 426.29, medianPpgT4: 357.6, riqrPriceT4: 0.6094, riqrPpgT4: 0.7701, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.1176, compMixNoise: 0.1176 },
+  { name: 'Álvaro Obregón', listings: 29, validPriceT4: 28, llmReviews: 6, meanPriceT4: 1920.1, medianPriceT4: 1753.5, meanPpgT4: 661.14, medianPpgT4: 564.2, riqrPriceT4: 0.4934, riqrPpgT4: 0.787, compAmenities: 0.1667, compMixAmenities: 0.3333, compNoise: 0.0, compMixNoise: 0.0 },
+  { name: 'Tlalpan', listings: 23, validPriceT4: 23, llmReviews: 4, meanPriceT4: 2319.31, medianPriceT4: 1255.4, meanPpgT4: 580.83, medianPpgT4: 452.61, riqrPriceT4: 1.3946, riqrPpgT4: 1.0995, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.0, compMixNoise: 0.0 },
+  { name: 'Azcapotzalco', listings: 19, validPriceT4: 19, llmReviews: 2, meanPriceT4: 1326.89, medianPriceT4: 1129.0, meanPpgT4: 463.76, medianPpgT4: 376.5, riqrPriceT4: 0.7037, riqrPpgT4: 0.8422, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.0, compMixNoise: 0.0 },
+  { name: 'Iztacalco', listings: 17, validPriceT4: 17, llmReviews: 3, meanPriceT4: 1859.18, medianPriceT4: 1284.0, meanPpgT4: 604.26, medianPpgT4: 642.0, riqrPriceT4: 0.7033, riqrPpgT4: 0.2935, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.0, compMixNoise: 0.0 },
+  { name: 'Cuajimalpa de Morelos', listings: 15, validPriceT4: 15, llmReviews: 3, meanPriceT4: 3808.42, medianPriceT4: 2410.0, meanPpgT4: 768.18, medianPpgT4: 594.42, riqrPriceT4: 0.9322, riqrPpgT4: 0.8135, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.0, compMixNoise: 0.0 },
+  { name: 'Gustavo A. Madero', listings: 14, validPriceT4: 14, llmReviews: 7, meanPriceT4: 1024.0, medianPriceT4: 907.5, meanPpgT4: 392.34, medianPpgT4: 341.08, riqrPriceT4: 0.7289, riqrPpgT4: 0.8102, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.0, compMixNoise: 0.0 },
+  { name: 'Xochimilco', listings: 5, validPriceT4: 5, llmReviews: 0, meanPriceT4: 3847.75, medianPriceT4: 2055.0, meanPpgT4: 521.29, medianPpgT4: 376.59, riqrPriceT4: 2.2642, riqrPpgT4: 0.4208, compAmenities: 0, compMixAmenities: 0, compNoise: 0, compMixNoise: 0 },
+  { name: 'Iztapalapa', listings: 4, validPriceT4: 4, llmReviews: 0, meanPriceT4: 917.25, medianPriceT4: 750.5, meanPpgT4: 317.85, medianPpgT4: 266.42, riqrPriceT4: 0.6189, riqrPpgT4: 0.2995, compAmenities: 0, compMixAmenities: 0, compNoise: 0, compMixNoise: 0 },
+  { name: 'La Magdalena Contreras', listings: 3, validPriceT4: 3, llmReviews: 1, meanPriceT4: 1031.0, medianPriceT4: 1068.0, meanPpgT4: 353.39, medianPpgT4: 302.41, riqrPriceT4: 0.4157, riqrPpgT4: 1.0248, compAmenities: 0.0, compMixAmenities: 0.0, compNoise: 0.0, compMixNoise: 0.0 },
+  { name: 'Milpa Alta', listings: 1, validPriceT4: 1, llmReviews: 0, meanPriceT4: 1713.0, medianPriceT4: 1713.0, meanPpgT4: 571.0, medianPpgT4: 571.0, riqrPriceT4: 0.0, riqrPpgT4: 0.0, compAmenities: 0, compMixAmenities: 0, compNoise: 0, compMixNoise: 0 },
 ];
 
 export const EVALUATION_METRICS = [
@@ -201,9 +207,15 @@ export const CODE_AUDIT_DISCREPANCIES = [
   },
   {
     area: 'Khác biệt giữa docs/ tham khảo và code Nhóm 4',
-    inDocsOrReport: 'Bộ docs/00–05 minh họa bằng thành phố Santiago (CLP), model gemini-2.5-flash, SDK client.interactions.create và DuckDB.',
-    inActualCode: 'Code Nhóm 4 phân tích Mexico City (MXN), dùng gemini-3.5-flash-lite, SDK client.models.generate_content với Pydantic create_model động, đọc Google Sheet CSV endpoint và lọc theo chunksize=100_000 bằng pandas.',
-    vivaTakeaway: 'Không bao giờ nhầm ví dụ Santiago/DuckDB/gemini-2.5 trong tài liệu hướng dẫn với code thực tế của Nhóm 4.',
+    inDocsOrReport: 'Bộ docs/00–05 minh họa bằng thành phố Santiago (CLP), model gemini-2.5-flash, SDK client.interactions.create, DuckDB và bộ KPI khác (Rev30, CommercialRatio, NSS trong docs/03). Tài liệu docs/00 & docs/05 cũng ghi quy chế vấn đáp 20 phút cũ và mốc 2026-06-29.',
+    inActualCode: 'Code Nhóm 4 tại tag final phân tích Mexico City (MXN, 4 mốc đến 2026-06-15), dùng gemini-3.5-flash-lite, SDK client.models.generate_content với Pydantic create_model động, đọc Google Sheet CSV endpoint + pandas chunksize=100_000, và bộ 6 nhóm KPI của src/kpi.py (PPG, rIQR, RV, Ghost, Occ/Gap, Complaint/ComplaintMixed). Đề bài chính thức 2627-1 quy định thi cá nhân 10 phút (5 câu × 90s; chỉ đổi 20 phút cho ca đặc biệt có minh chứng).',
+    vivaTakeaway: 'Không bao giờ nhầm ví dụ Santiago/DuckDB/gemini-2.5/NSS/20 phút trong docs tham khảo với code & quy chế thực tế của Nhóm 4.',
+  },
+  {
+    area: 'Chênh lệch làm tròn 0.01 pp tại Urgency Gap mốc t1',
+    inDocsOrReport: 'Lấy hai số đã làm tròn 4 chữ số trong kpi_by_snapshot.csv trừ cho nhau: 0.4849 − 0.3182 = 0.1667 (16.67 pp).',
+    inActualCode: 'kpi_by_snapshot.csv ghi urgency_gap_t1 = 0.1668 (16.68 pp) vì src/kpi.py tính diff trên giá trị float đầy đủ của occ_1_30 và occ_31_90 rồi mới làm tròn từng cột độc lập (_round_or_nan(..., 4)).',
+    vivaTakeaway: 'Hiểu quy tắc: luôn giữ độ chính xác float đầy đủ trong bước tính trung gian, chỉ làm tròn ở bước xuất báo cáo.',
   },
 ];
 

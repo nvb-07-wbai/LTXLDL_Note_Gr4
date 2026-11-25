@@ -23,6 +23,8 @@ const TYPE_LABELS: Record<QuizQuestion['type'], string> = {
 };
 
 export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: QuizPageProps) {
+  const [topicFilter, setTopicFilter] = useState<string>('ALL');
+  const [onlyWrong, setOnlyWrong] = useState(false);
   const [idx, setIdx] = useState(0);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [textInput, setTextInput] = useState('');
@@ -30,18 +32,35 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
   const [matchSelections, setMatchSelections] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [lastCorrect, setLastCorrect] = useState(false);
+  const [validationMsg, setValidationMsg] = useState('');
 
-  const q = QUIZZES_DATA[idx];
+  const topics = useMemo(() => ['ALL', ...Array.from(new Set(QUIZZES_DATA.map((x) => x.topic)))], []);
 
-  const initQuestionState = (nextIdx: number) => {
-    const nextQ = QUIZZES_DATA[nextIdx];
+  const filteredQuizzes = useMemo(() => {
+    return QUIZZES_DATA.filter((item) => {
+      if (topicFilter !== 'ALL' && item.topic !== topicFilter) return false;
+      if (onlyWrong) {
+        const done = completedQuizIds.includes(item.id);
+        const ok = correctQuizIds.includes(item.id);
+        if (!done || ok) return false;
+      }
+      return true;
+    });
+  }, [topicFilter, onlyWrong, completedQuizIds, correctQuizIds]);
+
+  const safeIdx = filteredQuizzes.length > 0 ? Math.min(idx, filteredQuizzes.length - 1) : 0;
+  const q = filteredQuizzes[safeIdx];
+
+  const initQuestionState = (nextIdx: number, listOverride?: QuizQuestion[]) => {
+    const activeList = listOverride ?? filteredQuizzes;
+    const nextQ = activeList[nextIdx];
     setIdx(nextIdx);
     setSelectedIndices([]);
     setTextInput('');
     setSubmitted(false);
     setLastCorrect(false);
-    if (nextQ.type === 'order' && nextQ.orderItems) {
-      // Deterministic reversed/rotated shuffle so user actually reorders it
+    setValidationMsg('');
+    if (nextQ?.type === 'order' && nextQ.orderItems) {
       const arr = [...nextQ.orderItems];
       setOrderList([...arr.slice(4), ...arr.slice(0, 4)]);
     } else {
@@ -51,12 +70,13 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
   };
 
   const rightMatchOptions = useMemo(() => {
-    if (q.type !== 'match' || !q.matchPairs) return [];
+    if (!q || q.type !== 'match' || !q.matchPairs) return [];
     return [...q.matchPairs.map((p) => p.right)].sort();
   }, [q]);
 
   const toggleOption = (optIdx: number) => {
-    if (submitted) return;
+    if (submitted || !q) return;
+    setValidationMsg('');
     if (q.type === 'multi') {
       setSelectedIndices((prev) =>
         prev.includes(optIdx) ? prev.filter((i) => i !== optIdx) : [...prev, optIdx]
@@ -76,6 +96,20 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
   };
 
   const checkAnswer = () => {
+    if (!q) return;
+    if (q.type === 'fill' && !textInput.trim()) {
+      setValidationMsg('Hãy nhập câu trả lời trước khi kiểm tra.');
+      return;
+    }
+    if (q.type === 'match' && q.matchPairs && q.matchPairs.some((p) => !matchSelections[p.left])) {
+      setValidationMsg('Hãy ghép đầy đủ tất cả các cặp trước khi kiểm tra.');
+      return;
+    }
+    if (q.options && selectedIndices.length === 0) {
+      setValidationMsg('Hãy chọn ít nhất 1 phương án trước khi kiểm tra.');
+      return;
+    }
+    setValidationMsg('');
     let ok = false;
     if (q.type === 'fill') {
       ok = textInput.trim().toLowerCase() === (q.correctText ?? '').toLowerCase();
@@ -84,8 +118,8 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
     } else if (q.type === 'match' && q.matchPairs) {
       ok = q.matchPairs.every((p) => matchSelections[p.left] === p.right);
     } else if (q.correctIndices) {
-      const a = [...selectedIndices].sort().join(',');
-      const b = [...q.correctIndices].sort().join(',');
+      const a = [...selectedIndices].sort((x, y) => x - y).join(',');
+      const b = [...q.correctIndices].sort((x, y) => x - y).join(',');
       ok = a === b;
     }
     setSubmitted(true);
@@ -95,18 +129,61 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-extrabold flex items-center gap-2">
-            <CheckSquare className="w-6 h-6 text-[#2563EB]" /> Quiz Tương tác (9 Dạng bài)
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Đã làm: <strong>{completedQuizIds.length}/{QUIZZES_DATA.length}</strong> · Đúng: <strong className="text-[#0F9D8A]">{correctQuizIds.length}</strong>
-          </p>
+      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-extrabold flex items-center gap-2">
+              <CheckSquare className="w-6 h-6 text-[#2563EB] dark:text-blue-400" /> Quiz Tương tác (9 Dạng bài)
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              Đã làm: <strong>{completedQuizIds.length}/{QUIZZES_DATA.length}</strong> · Đúng: <strong className="text-[#0F9D8A] dark:text-teal-300">{correctQuizIds.length}</strong>
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <select
+              value={topicFilter}
+              onChange={(e) => {
+                const nextTopic = e.target.value;
+                setTopicFilter(nextTopic);
+                const nextList = QUIZZES_DATA.filter((item) => {
+                  if (nextTopic !== 'ALL' && item.topic !== nextTopic) return false;
+                  if (onlyWrong && (!completedQuizIds.includes(item.id) || correctQuizIds.includes(item.id))) return false;
+                  return true;
+                });
+                initQuestionState(0, nextList);
+              }}
+              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-semibold"
+            >
+              {topics.map((t) => (
+                <option key={t} value={t}>{t === 'ALL' ? `Tất cả chủ đề (${QUIZZES_DATA.length})` : t}</option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => {
+                const nextOnlyWrong = !onlyWrong;
+                setOnlyWrong(nextOnlyWrong);
+                const nextList = QUIZZES_DATA.filter((item) => {
+                  if (topicFilter !== 'ALL' && item.topic !== topicFilter) return false;
+                  if (nextOnlyWrong && (!completedQuizIds.includes(item.id) || correctQuizIds.includes(item.id))) return false;
+                  return true;
+                });
+                initQuestionState(0, nextList);
+              }}
+              className={`px-3 py-1.5 rounded-xl font-bold border cursor-pointer ${
+                onlyWrong
+                  ? 'bg-rose-600 text-white border-rose-600'
+                  : 'border-slate-200 dark:border-slate-700 hover:border-rose-400'
+              }`}
+            >
+              Ôn câu sai ({completedQuizIds.filter((id) => !correctQuizIds.includes(id)).length})
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-1.5">
-          {QUIZZES_DATA.map((item, i) => {
+          {filteredQuizzes.map((item, i) => {
             const done = completedQuizIds.includes(item.id);
             const ok = correctQuizIds.includes(item.id);
             return (
@@ -115,12 +192,12 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
                 type="button"
                 onClick={() => initQuestionState(i)}
                 className={`w-8 h-8 rounded-lg text-xs font-bold cursor-pointer border transition-colors ${
-                  i === idx
+                  i === safeIdx
                     ? 'bg-[#2563EB] text-white border-[#2563EB]'
                     : ok
-                    ? 'bg-[#E7F6F2] text-[#0F9D8A] border-[#0F9D8A]/40'
+                    ? 'bg-[#E7F6F2] dark:bg-teal-950/60 text-[#0F9D8A] dark:text-teal-300 border-[#0F9D8A]/40'
                     : done
-                    ? 'bg-rose-50 text-rose-600 border-rose-300'
+                    ? 'bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-300 border-rose-300 dark:border-rose-800'
                     : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
                 }`}
               >
@@ -131,13 +208,18 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
         </div>
       </div>
 
-      {/* Active Question Card */}
+      {!q ? (
+        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 text-center text-sm text-slate-500">
+          Không có câu nào trong bộ lọc hiện tại (chúc mừng — bạn chưa có câu trả lời sai nào trong chủ đề này!).
+        </div>
+      ) : (
+      /* Active Question Card */
       <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-5 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-          <span className="px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] font-bold">
-            Câu {idx + 1} · {TYPE_LABELS[q.type]}
+          <span className="px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#2563EB] dark:text-blue-400 font-bold">
+            Câu {safeIdx + 1} / {filteredQuizzes.length} · {TYPE_LABELS[q.type]}
           </span>
-          <span className="text-slate-400 font-medium">{q.topic}</span>
+          <span className="text-slate-500 dark:text-slate-400 font-medium">{q.topic}</span>
         </div>
 
         <h2 className="text-base sm:text-lg font-bold leading-snug">{q.prompt}</h2>
@@ -204,7 +286,7 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
                     <button
                       type="button"
                       onClick={() => moveOrder(i, -1)}
-                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-white cursor-pointer"
+                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
                       aria-label="Lên"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
@@ -212,7 +294,7 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
                     <button
                       type="button"
                       onClick={() => moveOrder(i, 1)}
-                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-white cursor-pointer"
+                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer"
                       aria-label="Xuống"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
@@ -251,6 +333,9 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
         )}
 
         {/* Submit / Feedback */}
+        {validationMsg && (
+          <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">{validationMsg}</p>
+        )}
         {!submitted ? (
           <button
             type="button"
@@ -266,7 +351,7 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
               : 'bg-rose-50/70 dark:bg-rose-950/30 border-rose-400'
           }`}>
             <div className={`font-bold text-sm flex items-center gap-1.5 ${
-              lastCorrect ? 'text-[#0F9D8A]' : 'text-rose-600 dark:text-rose-400'
+              lastCorrect ? 'text-[#0F9D8A] dark:text-teal-300' : 'text-rose-600 dark:text-rose-400'
             }`}>
               {lastCorrect ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
               <span>{lastCorrect ? 'Chính xác!' : 'Chưa chính xác — xem giải thích bên dưới'}</span>
@@ -280,8 +365,8 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
             <div className="pt-2">
               <button
                 type="button"
-                onClick={() => initQuestionState((idx + 1) % QUIZZES_DATA.length)}
-                className="px-4 py-2 rounded-lg bg-[#14243A] text-white font-bold cursor-pointer"
+                onClick={() => initQuestionState((safeIdx + 1) % filteredQuizzes.length)}
+                className="px-4 py-2 rounded-lg bg-[#14243A] text-white font-bold cursor-pointer hover:bg-slate-800"
               >
                 Câu tiếp theo →
               </button>
@@ -289,6 +374,7 @@ export function QuizPage({ completedQuizIds, correctQuizIds, onRecordAnswer }: Q
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

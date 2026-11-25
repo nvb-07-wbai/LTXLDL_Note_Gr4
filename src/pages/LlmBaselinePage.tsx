@@ -150,7 +150,7 @@ overall = "positive" if total_neg == 0 else "negative" if (total_pos == 0 or tot
                     <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
                     <XAxis type="number" domain={[0, 1]} tick={{ fontSize: 11 }} />
                     <YAxis type="category" dataKey="label" width={175} tick={{ fontSize: 11 }} />
-                    <Tooltip />
+                    <Tooltip contentStyle={{ backgroundColor: '#0F172A', borderColor: '#334155', color: '#F8FAFC', fontSize: '12px', borderRadius: '0.75rem' }} />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
                     <Bar dataKey="llm" name="LLM (gemini-3.5-flash-lite)" fill="#0F9D8A" barSize={10} />
                     <Bar dataKey="baseline" name="Baseline (Regex)" fill="#94A3B8" barSize={10} />
@@ -260,8 +260,8 @@ overall = "positive" if total_neg == 0 else "negative" if (total_pos == 0 or tot
                 />
                 <span>Áp dụng Gemini Batch API (giảm 50% giá, chờ kết quả trong 24h)</span>
               </label>
-              <div className="text-sm font-bold text-[#0F9D8A]">
-                Chi phí ước tính: ${Number(estCost).toLocaleString('en-US')} USD ({((inTok + outTok) / 1_000_000).toFixed(2)}M tokens)
+              <div className="text-sm font-bold text-[#0F9D8A] dark:text-teal-300">
+                Chi phí ước tính: ${Number(estCost).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })} USD ({((inTok + outTok) / 1_000_000).toFixed(2)}M tokens)
               </div>
             </div>
           </div>

@@ -94,7 +94,7 @@ export function OverviewPage({ progress, onResetProgress }: OverviewPageProps) {
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm border border-white/15 transition-colors cursor-pointer"
               >
                 <Workflow className="w-4 h-4" />
-                <span>Khám phá 8 bước Pipeline</span>
+                <span>Khám phá 9 chặng &amp; 83 hàm Code</span>
               </button>
               <button
                 type="button"
@@ -147,7 +147,11 @@ export function OverviewPage({ progress, onResetProgress }: OverviewPageProps) {
             </div>
             <button
               type="button"
-              onClick={onResetProgress}
+              onClick={() => {
+                if (window.confirm('Bạn có chắc muốn xóa toàn bộ tiến độ học tập, flashcard, quiz và lịch sử thi thử?')) {
+                  onResetProgress();
+                }
+              }}
               className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-rose-600 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -196,6 +200,7 @@ export function OverviewPage({ progress, onResetProgress }: OverviewPageProps) {
                 <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fontSize: 11 }} />
                 <YAxis type="category" dataKey="name" width={78} tick={{ fontSize: 12 }} />
                 <Tooltip
+                  contentStyle={{ backgroundColor: '#0F172A', borderColor: '#334155', color: '#F8FAFC', fontSize: '12px', borderRadius: '0.75rem' }}
                   formatter={(value: number, _n: string, item: { payload?: { raw?: string } }) => [
                     `${value}% (${item?.payload?.raw ?? ''})`,
                     'Hoàn thành',
@@ -211,7 +216,7 @@ export function OverviewPage({ progress, onResetProgress }: OverviewPageProps) {
         <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between gap-2 mb-3">
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#2563EB]">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-[#2563EB] dark:text-blue-400">
                 <Sparkles className="w-3.5 h-3.5" /> Câu hỏi luyện tập trong ngày
               </span>
               <span className="text-[11px] px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-medium">
@@ -264,7 +269,7 @@ export function OverviewPage({ progress, onResetProgress }: OverviewPageProps) {
             <button
               type="button"
               onClick={() => navigate('/theory')}
-              className="text-xs text-[#2563EB] font-semibold hover:underline cursor-pointer"
+              className="text-xs text-[#2563EB] dark:text-blue-400 font-semibold hover:underline cursor-pointer"
             >
               Xem tất cả 13 bài
             </button>
@@ -283,7 +288,7 @@ export function OverviewPage({ progress, onResetProgress }: OverviewPageProps) {
                   className="w-full text-left p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 hover:border-[#2563EB] bg-slate-50/60 dark:bg-slate-800/40 flex items-center justify-between gap-3 transition-colors cursor-pointer"
                 >
                   <div className="min-w-0">
-                    <div className="text-xs font-bold text-[#2563EB]">{lesson.number} · {lesson.relevance}</div>
+                    <div className="text-xs font-bold text-[#2563EB] dark:text-blue-400">{lesson.number} · {lesson.relevance}</div>
                     <div className="text-sm font-semibold truncate">{lesson.title}</div>
                   </div>
                   <ArrowRight className="w-4 h-4 text-slate-400 shrink-0" />

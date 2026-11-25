@@ -23,7 +23,7 @@ export function MathFormula({ latex, block = false, className = '' }: MathFormul
   if (block) {
     return (
       <div
-        className={`overflow-x-auto py-2 px-3 rounded-lg bg-slate-50 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-700/80 ${className}`}
+        className={`overflow-x-auto py-2 px-3 rounded-lg bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 ${className}`}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );

@@ -28,7 +28,9 @@ export function KpiQaPage() {
 
   const switchTab = (next: 'qa' | 'kpi') => {
     setTab(next);
-    setSearchParams({ tab: next });
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', next);
+    setSearchParams(nextParams);
   };
 
   const snapshotChartData = SNAPSHOT_KPI_DATA.map((d) => ({
@@ -325,7 +327,7 @@ export function KpiQaPage() {
                     <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
                     <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip />
+                    <Tooltip contentStyle={{ backgroundColor: '#0F172A', borderColor: '#334155', color: '#F8FAFC', fontSize: '12px', borderRadius: '0.75rem' }} />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
                     <Line type="monotone" dataKey="medianPrice" name="Median Price (MXN)" stroke="#2563EB" strokeWidth={2.5} connectNulls={false} dot={{ r: 5 }} />
                     <Line type="monotone" dataKey="medianPpg" name="Median PPG (MXN)" stroke="#0F9D8A" strokeWidth={2.5} connectNulls={false} dot={{ r: 5 }} />

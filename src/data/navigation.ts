@@ -45,10 +45,10 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'pipeline',
     path: '/pipeline',
-    label: 'Data Pipeline',
-    shortLabel: 'Pipeline',
+    label: 'Data Pipeline & Code',
+    shortLabel: 'Pipeline & Code',
     section: 'project',
-    description: 'Khám phá luồng 8 bước + Code Playground đọc hiểu src/*.py',
+    description: '9 chặng (8 mô-đun Python + Báo cáo), 83 hàm/class (A–J), Dependency Graph & Code Trace Mode',
   },
   {
     id: 'kpi-qa',

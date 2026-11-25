@@ -7,8 +7,9 @@
       (function () {
         var base = '/LTXLDL_Note_Gr4/';
         var path = window.location.pathname;
+        var search = window.location.search || '';
         var rel = path.indexOf(base) === 0 ? path.slice(base.length) : path.replace(/^\/+/, '');
-        window.location.replace(base + (rel ? '#/' + rel : ''));
+        window.location.replace(base + (rel ? '#/' + rel + search : ''));
       })();
     </script>
   </head>
