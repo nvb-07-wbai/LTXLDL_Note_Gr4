@@ -15,7 +15,7 @@ import {
   FileCode2,
   History,
 } from 'lucide-react';
-import { ALL_VIVA_QUESTIONS, VIVA_CATEGORIES } from '../data/viva';
+import { ALL_VIVA_QUESTIONS, VIVA_CATEGORIES, VIVA_TOPICS, VIVA_LEVELS } from '../data/viva';
 import { CodeBlock } from '../components/CodeBlock';
 import { getFigureUrl } from '../lib/assetUrl';
 import type { StudyProgressState, VivaAttemptRecord, VivaQuestion } from '../types';
@@ -59,6 +59,8 @@ export function VivaArenaPage({
 
   // Bank filters
   const [catFilter, setCatFilter] = useState<string>('ALL');
+  const [topicFilter, setTopicFilter] = useState<string>('ALL');
+  const [levelFilter, setLevelFilter] = useState<string>('ALL');
   const [diffFilter, setDiffFilter] = useState<string>('ALL');
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
   const [bucketFilter, setBucketFilter] = useState<string>('ALL');
@@ -219,6 +221,8 @@ export function VivaArenaPage({
     const qLower = bankQuery.trim().toLowerCase();
     return ALL_VIVA_QUESTIONS.filter((q) => {
       if (catFilter !== 'ALL' && q.category !== catFilter) return false;
+      if (topicFilter !== 'ALL' && !(q.topics ?? []).includes(topicFilter as never)) return false;
+      if (levelFilter !== 'ALL' && String(q.level ?? '') !== levelFilter) return false;
       if (diffFilter !== 'ALL' && q.difficulty !== diffFilter) return false;
       if (typeFilter !== 'ALL' && q.qType !== typeFilter) return false;
       if (bucketFilter !== 'ALL' && q.bucket !== bucketFilter) return false;
@@ -233,7 +237,7 @@ export function VivaArenaPage({
       }
       return true;
     });
-  }, [catFilter, diffFilter, typeFilter, bucketFilter, bankQuery]);
+  }, [catFilter, topicFilter, levelFilter, diffFilter, typeFilter, bucketFilter, bankQuery]);
 
   const visibleBank = useMemo(() => {
     if (expandedBankId && !filteredBank.slice(0, bankLimit).some((q) => q.id === expandedBankId)) {
@@ -721,6 +725,32 @@ export function VivaArenaPage({
               <option value="ALL">Tất cả 10 nhóm (A–J)</option>
               {VIVA_CATEGORIES.map((c) => (
                 <option key={c.id} value={c.id}>{c.label}</option>
+              ))}
+            </select>
+            <select
+              value={topicFilter}
+              onChange={(e) => {
+                setTopicFilter(e.target.value);
+                setBankLimit(40);
+              }}
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+            >
+              <option value="ALL">18 Chủ đề chi tiết</option>
+              {VIVA_TOPICS.map((tp) => (
+                <option key={tp} value={tp}>{tp}</option>
+              ))}
+            </select>
+            <select
+              value={levelFilter}
+              onChange={(e) => {
+                setLevelFilter(e.target.value);
+                setBankLimit(40);
+              }}
+              className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+            >
+              <option value="ALL">6 Cấp độ (1–6)</option>
+              {VIVA_LEVELS.map((lv) => (
+                <option key={lv.level} value={String(lv.level)}>{lv.label}</option>
               ))}
             </select>
             <select

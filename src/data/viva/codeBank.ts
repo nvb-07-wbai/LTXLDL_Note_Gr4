@@ -3132,7 +3132,7 @@ export const VIVA_CODE_BANK: VivaQuestion[] = [
     "explanation": "**Chữ ký:** `def plot_ppg_neighbourhood(nb: pd.DataFrame, snap: pd.DataFrame, geo_path: Path, city: str, out_dir: Path, cur: str = \"MXN\") -> tuple[Path, plt.Figure]:`.\n**Luồng chạy:** Đọc đa giác 16 quận qua _load_geojson() và tính geo_aspect hiệu chỉnh tỉ lệ kinh/vĩ độ. -> Tạo 2 chuẩn màu Normalize dùng chung: price_norm cho hàng Price, ppg_norm cho hàng PPG. -> Lặp từng quận vẽ Patch Polygon; tô xám hatch=\"///\" cho Tláhuac; đặt số thứ hạng #1..#15 tại _centroid()..\n**Input:** nb, snap, geo_path, city, out_dir, cur=\"MXN\" -> **Output:** Tuple (Path, plt.Figure) -> figures/kpi_ppg_neighbourhood.png..\n**Giải đáp sâu:** Nếu mỗi khung tự scale màu từ min đến max của riêng nó, Cuauhtémoc có Mean 3.529 và Median 2.215 sẽ đều tô màu đỏ sẫm như nhau -> che lấp tác động của outlier.",
     "projectLink": "src/viz.py:L198-L298",
     "codeLocation": "src/viz.py:L198-L298",
-    "proofExample": "Ví dụ: `Xochimilco #1 Mean Price (3.848 MXN) nhưng tụt xuống #11 Median PPG (377 MXN); Miguel Hidalgo #1 Median PPG (706 MXN).`. Sử dụng tại: Job thứ 3 trong main() của src/viz.py.",
+    "proofExample": "Ví dụ: `Xochimilco #1 Mean Price (3.848 MXN) nhưng tụt xuống #11 Mean PPG (521,29 MXN) / #10 Median PPG (376,59 MXN); Miguel Hidalgo #1 Median PPG (706,12 MXN).`. Sử dụng tại: Job thứ 3 trong main() của src/viz.py.",
     "followUpQuestions": [
       "Trong `src/viz.py`, lỗi tiềm ẩn nào dễ xảy ra với `plot_ppg_neighbourhood` nếu dữ liệu đầu vào bất thường?"
     ],

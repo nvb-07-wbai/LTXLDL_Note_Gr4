@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import {
   CheckCircle2,
   Circle,
@@ -344,9 +344,9 @@ export function TheoryPage({ completedLessons, onToggleComplete }: TheoryPagePro
           </section>
         </div>
 
-        {/* 12: Tóm tắt ghi nhớ */}
-        <section className="rounded-2xl bg-[#14243A] text-white p-5">
-          <h2 className="text-sm font-bold flex items-center gap-2 text-[#E7F6F2] mb-2">
+        {/* 12: Tóm tắt ghi nhớ & Liên kết Thực hành */}
+        <section className="rounded-2xl bg-[#14243A] text-white p-5 space-y-3">
+          <h2 className="text-sm font-bold flex items-center gap-2 text-[#E7F6F2]">
             <BookmarkCheck className="w-4 h-4 text-[#0F9D8A]" /> 12. Tóm tắt cần ghi nhớ
           </h2>
           <ul className="space-y-1.5 text-sm text-slate-200 list-disc pl-4">
@@ -354,6 +354,26 @@ export function TheoryPage({ completedLessons, onToggleComplete }: TheoryPagePro
               <li key={idx}>{s}</li>
             ))}
           </ul>
+          <div className="pt-2 border-t border-white/15 flex flex-wrap gap-2 text-xs">
+            <Link
+              to="/pipeline?tab=functions"
+              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold"
+            >
+              Xem 83 hàm trong Pipeline →
+            </Link>
+            <Link
+              to="/pipeline?tab=trace"
+              className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold"
+            >
+              Thực hành Code Trace →
+            </Link>
+            <Link
+              to="/viva?tab=bank"
+              className="px-3 py-1.5 rounded-lg bg-[#0F9D8A] hover:bg-[#0d8978] text-white font-semibold"
+            >
+              Luyện câu hỏi Viva Arena →
+            </Link>
+          </div>
         </section>
 
         {/* Lesson Prev / Next */}

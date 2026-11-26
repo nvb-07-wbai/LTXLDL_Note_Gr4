@@ -128,6 +128,24 @@ export function StorytellingPage() {
             </div>
           </div>
 
+          {/* KPI Formula & Chart Reading Guide (Checklist 9 phần - Mục 3 & 4) */}
+          {(story.kpiFormula || story.chartReadingGuide) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              {story.kpiFormula && (
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 space-y-1">
+                  <div className="font-bold text-[#2563EB] dark:text-blue-400 uppercase">Định nghĩa &amp; Công thức KPI nền</div>
+                  <p className="font-mono text-[11px] text-slate-700 dark:text-slate-200 leading-relaxed">{story.kpiFormula}</p>
+                </div>
+              )}
+              {story.chartReadingGuide && (
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 space-y-1">
+                  <div className="font-bold text-[#0F9D8A] dark:text-teal-400 uppercase">Hướng dẫn đọc đúng biểu đồ</div>
+                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{story.chartReadingGuide}</p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Method, Conclusion, Stakeholder, Limitations */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-1.5">
@@ -154,6 +172,48 @@ export function StorytellingPage() {
               </ul>
             </div>
           </div>
+
+          {/* Per-Story Viva Defense Q&A */}
+          {story.defenseQuestions && story.defenseQuestions.length > 0 && (
+            <div className="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200/70 dark:border-rose-900/40 space-y-2 text-xs">
+              <div className="font-bold text-rose-700 dark:text-rose-300 uppercase">
+                Câu hỏi bảo vệ số liệu cho Story này (Vấn đáp 90s)
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {story.defenseQuestions.map((dq) => (
+                  <div key={dq.q} className="p-3 rounded-lg bg-white/80 dark:bg-slate-900/70 border border-rose-100 dark:border-rose-900/40 space-y-1">
+                    <div className="font-bold text-slate-800 dark:text-slate-100">❓ {dq.q}</div>
+                    <div className="text-slate-600 dark:text-slate-300">→ {dq.a}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 6 Ranh giới Cấm Nhầm lẫn (Bài 14) */}
+      <section className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-wide text-rose-600 dark:text-rose-400">
+            Kỷ luật học thuật (Bài 14)
+          </span>
+          <h2 className="text-lg font-extrabold mt-0.5">6 Ranh giới Cấm Nhầm lẫn khi Bảo vệ Kết quả</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+          {[
+            { pair: '1. Tương quan ≠ Nhân quả', desc: 'Mốc t4 trùng World Cup (+67.3%) không chứng minh World Cup là nguyên nhân duy nhất (t3 đã tăng +52.5%).' },
+            { pair: '2. Availability ≠ Occupancy thực tế', desc: 'Occ_1-30 là tỷ lệ ngày không mở đặt (gồm cả chủ tự khóa phòng), không phải giao dịch đã thanh toán.' },
+            { pair: '3. Số Review ≠ Số lượt khách thực', desc: 'Review phụ thuộc tỷ lệ khách viết đánh giá và độ dài kỳ thuê (thuê 30 ngày chỉ tạo tối đa 1 review).' },
+            { pair: '4. Ghost = 1 ≠ Ngừng kinh doanh vĩnh viễn', desc: 'Chỉ là trạng thái khóa lịch hành vi ở mốc đó; thực tế 0/1.000 căn bị gắn ghost liên tục cả 4 mốc.' },
+            { pair: '5. Mixed Sentiment ≠ Bất mãn toàn phần', desc: '14.8% amenities tại Cuauhtémoc gộp cả mixed (12.95% khen kèm góp ý) + 1.87% thuần negative, và 74.9% mẫu tập trung ở Cuauhtémoc.' },
+            { pair: '6. Mẫu 1.000 listing ≠ Toàn thị trường CDMX', desc: 'Chỉ chiếm ~3.2% thành phố trên panel cố định phân công, không suy rộng thành tổng cung mới hay thống kê đại diện đều 16 quận.' },
+          ].map((b) => (
+            <div key={b.pair} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 space-y-1">
+              <div className="font-bold text-rose-700 dark:text-rose-300">{b.pair}</div>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{b.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 

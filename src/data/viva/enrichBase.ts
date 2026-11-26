@@ -210,7 +210,7 @@ export const VIVA_BASE_ENRICHMENT: Record<string, Partial<VivaQuestion>> = {
   "vq-11": {
     "bucket": "code",
     "topics": [
-      "Filter",
+      "File I/O",
       "pandas",
       "SQL"
     ],
@@ -637,7 +637,7 @@ export const VIVA_BASE_ENRICHMENT: Record<string, Partial<VivaQuestion>> = {
   "vq-32": {
     "bucket": "code",
     "topics": [
-      "Filter",
+      "File I/O",
       "pandas"
     ],
     "level": 3,
@@ -1118,7 +1118,7 @@ export const VIVA_BASE_ENRICHMENT: Record<string, Partial<VivaQuestion>> = {
     "bucket": "scenario",
     "topics": [
       "Architecture",
-      "Filter"
+      "File I/O"
     ],
     "level": 4,
     "levelLabel": "Cấp độ 4 – Vận dụng",

@@ -133,7 +133,8 @@ print(f"Giá TB: {avg_price:,.1f} MXN (hợp lệ: {len(valid)/len(prices):.1%})
     ],
     coreConcepts: [
       'Vectorization: Đẩy vòng lặp xuống mã C tối ưu, nhanh hơn for Python hàng trăm lần.',
-      'Broadcasting: Tự động khớp kích thước khi tính toán mảng với số vô hướng hoặc mảng 1D.',
+      'Broadcasting đa chiều: Khớp kích thước từ trục bên phải sang trái; muốn chia hàng `(N, K)` cho vector `(N,)` phải biến thành `(N, 1)` bằng `w[:, None]`.',
+      'np.where(cond, x, y) đánh giá TRƯỚC cả hai nhánh `x` và `y` rồi mới lọc chọn — nếu `y` có phép chia 0 vẫn gây cảnh báo `RuntimeWarning`!',
       'View vs Copy: Sửa lát cắt (slice) trong NumPy có thể làm đổi mảng gốc nếu không .copy().',
     ],
     terms: [
@@ -198,7 +199,8 @@ print("Occ30:", np.round(occ30, 2), "| >=50%:", high_occ)`,
     coreConcepts: [
       'Series = dữ liệu 1D có nhãn index + dtype; DataFrame = bảng 2D gồm nhiều Series cùng index.',
       '.loc["a":"b"] lấy cả mốc cuối "b"; .iloc[0:2] bỏ mốc cuối 2.',
-      'pandas 3 Copy-on-Write: sửa Series tách ra hoặc df["col"]["a"] = ... không sửa bảng gốc; phải dùng df.loc[mask, "col"] = val.',
+      'pandas 2.2 phát SettingWithCopyWarning; pandas 3.0 bật Copy-on-Write (CoW) mặc định bắt buộc — chained assignment df[mask]["col"] = val ném ChainedAssignmentError. Luôn viết df.loc[mask, "col"] = val.',
+      'Logic 3 giá trị Kleene (pd.NA): True | pd.NA -> True, False & pd.NA -> False, nhưng ~pd.NA -> pd.NA; luôn .fillna(False)/.fillna(True) trước khi đánh mặt nạ df[mask].',
     ],
     terms: [
       { term: 'DataFrame', meaning: 'Cấu trúc bảng dữ liệu hai chiều có nhãn hàng (index) và nhãn cột (columns), mỗi cột có thể mang dtype riêng.' },
@@ -256,10 +258,11 @@ print(df)`,
       'Sử dụng groupby() với Named Aggregation và merge(..., validate=...) an toàn.',
     ],
     coreConcepts: [
-      'Index Alignment: Phép trừ s2 - s1 khớp theo nhãn index, không theo thứ tự hàng.',
-      'size() đếm mọi hàng kể cả NaN; count() chỉ đếm giá trị không thiếu.',
-      'transform() trả kết quả cùng chiều dài bảng gốc (dùng để điền theo nhóm hoặc so sánh từng hàng với trung bình nhóm).',
-      'cut (ngưỡng cố định so được qua nhiều kỳ) vs qcut (chia nhóm cỡ bằng nhau theo phân vị).',
+      'Index Alignment: Phép trừ s2 - s1 (và pd.concat(axis=1)) khớp theo nhãn index, không theo thứ tự hàng.',
+      'pd.concat([a, b]): axis=0 nối dọc theo tên cột (khác cột sinh NaN); axis=1 nối ngang theo index (lệch index dễ phình hàng).',
+      'Series.map(dict) ánh xạ O(1) trả NaN cho khóa lạ; DataFrame.map() chạy từng ô; transform() giữ nguyên độ dài gốc; agg() thu gọn mỗi nhóm 1 dòng.',
+      'pd.merge() mặc định coi NaN == NaN là True (dễ nổ dòng nếu khóa thiếu -> phải .dropna(subset=[key]) và dùng validate="many_to_one"), ngược với INNER JOIN SQL loại NULL!',
+      'size() đếm mọi hàng kể cả NaN; count() chỉ đếm giá trị không thiếu; cut() dùng ngưỡng cố định so qua nhiều kỳ vs qcut() chia đều theo phân vị.',
     ],
     terms: [
       { term: 'Index Alignment', meaning: 'Pandas tự động ghép cặp phần tử dựa trên nhãn index khi cộng/trừ/gán Series.' },
@@ -316,7 +319,8 @@ print(s2 - s1)  # Khớp đúng L1=20, L2=10 dù thứ tự đảo ngược`,
     coreConcepts: [
       'CSV lưu văn bản thuần nên ID dài/số 0 ở đầu dễ bị ép nhầm sang int64/float64.',
       'keep_default_na=False tránh trường hợp mã hợp lệ (như "NA" - North America) bị biến thành NaN.',
-      'requests.get(url, stream=True, timeout=60) + ghi file .tmp + kiểm Content-Length.',
+      'HTTP Status vs Payload Trap: requests.get() không tự ném lỗi 4xx/5xx (cần raise_for_status()); thậm chí 200 OK vẫn có thể trả HTML chặn bot (cần kiểm Content-Type / magic bytes gzip 1f 8b) và 429 cần kiểm header Retry-After.',
+      'DuckDB & SQL chuẩn: cột không nằm trong hàm tổng hợp ở SELECT phải liệt kê ở GROUP BY (nếu thiếu -> BinderException); WHERE col != 0 tự loại cả NULL; COUNT(*) đếm cả NULL còn COUNT(col) bỏ qua NULL.',
       'Chunking (chunksize=100_000) xử lý file lớn từng phần mà không tràn RAM.',
     ],
     terms: [

@@ -3999,23 +3999,23 @@ export const VIVA_TRACE_BANK: VivaQuestion[] = [
     "difficulty": "Vận dụng",
     "qType": "Truy vết",
     "evaluationGoal": "Truy vết hàm `_iqr_stats()` trong `src/kpi.py` khi `Series` toàn `NaN` (như tại `t2`).",
-    "question": "Gọi `_iqr_stats(df[\"price_mxn_t2\"])` (`src/kpi.py:L36-L48`) khi cả 1.000 phần tử đều là `np.nan`. Giá trị trả về của 6 khóa `(count, mean, median, q1, q3, riqr)` là gì?",
-    "quickAnswer": "`count = 0` (kiểu `int`), còn 5 khóa `mean, median, q1, q3, riqr` đều trả về **`np.nan`** nhờ câu lệnh bảo vệ `if n == 0: return {\"count\": 0, \"mean\": np.nan, ...}` ở `L40`!",
-    "explanation": "Nhờ guard `n == 0` sớm, code không phát sinh `RuntimeWarning: Mean of empty slice` hoặc lỗi chia 0 ở `iqr / median`.",
-    "projectLink": "src/kpi.py:L36-L48",
-    "codeLocation": "src/kpi.py:L36-L48",
-    "proofExample": "count=0, còn lại là np.nan.",
+    "question": "Gọi `_iqr_stats(df[\"price_mxn_t2\"], digits=2)` (`src/kpi.py:L69-L84`) khi cả 1.000 phần tử đều là `np.nan`. Giá trị trả về của 4 phần tử `(count, median, iqr, riqr)` là gì?",
+    "quickAnswer": "Trả về bộ 4 phần tử **`(0, np.nan, np.nan, np.nan)`** nhờ câu lệnh bảo vệ `if valid.empty: return 0, np.nan, np.nan, np.nan` ở `L72-L73`!",
+    "explanation": "Nhờ guard `valid.empty` sớm, code không phát sinh `RuntimeWarning: Mean of empty slice` hoặc lỗi chia 0 ở `iqr / med`.",
+    "projectLink": "src/kpi.py:L69-L84",
+    "codeLocation": "src/kpi.py:L69-L84",
+    "proofExample": "Trả về (0, np.nan, np.nan, np.nan).",
     "followUpQuestions": [
-      "Nếu `n = 5` và tất cả 5 căn hộ có giá bằng nhau hệt (`median = 0.0`, giả sử lý thuyết), phép tính `riqr = iqr / median` có bị `ZeroDivisionError` không?"
+      "Nếu `n = 5` và tất cả 5 căn hộ có giá bằng nhau hệt (`med = 0.0`, giả sử lý thuyết), phép tính `riqr = iqr / med` có bị `ZeroDivisionError` không?"
     ],
     "followUpQA": [
       {
-        "q": "Nếu `n = 5` và tất cả 5 căn hộ có giá bằng nhau hệt (`median = 0.0`, giả sử lý thuyết), phép tính `riqr = iqr / median` có bị `ZeroDivisionError` không?",
-        "a": "Trong `L46`: viết `iqr / median if median and median > 0 else np.nan` nên trả về `np.nan` an toàn tuyệt đối!"
+        "q": "Nếu `n = 5` và tất cả 5 căn hộ có giá bằng nhau hệt (`med = 0.0`, giả sử lý thuyết), phép tính `riqr = iqr / med` có bị `ZeroDivisionError` không?",
+        "a": "Trong `L78`: viết `riqr = (iqr / med) if med > 0 else np.nan` nên trả về `np.nan` an toàn tuyệt đối!"
       }
     ],
     "commonMistakes": [
-      "Nghĩ `_iqr_stats()` trả về `0.0` cho Mean và Median tại `t2`."
+      "Nghĩ `_iqr_stats()` trả về `0.0` cho Median tại `t2` hoặc trả về dictionary 6 khóa."
     ],
     "relatedFiles": [
       "src/kpi.py"

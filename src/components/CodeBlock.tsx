@@ -30,11 +30,11 @@ export function CodeBlock({
   const hlSet = new Set(highlightLines);
 
   return (
-    <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/80 bg-[#0F172A] text-slate-100 shadow-sm">
-      <div className="flex items-center justify-between px-3.5 py-2 bg-[#14243A] border-b border-slate-700/70 text-xs">
-        <div className="flex items-center gap-2 text-slate-200 font-medium">
-          <FileCode2 className="w-3.5 h-3.5 text-[#0F9D8A]" />
-          <span>{title ?? language.toUpperCase()}</span>
+    <div className="w-full max-w-full min-w-0 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/80 bg-[#0F172A] text-slate-100 shadow-sm">
+      <div className="flex items-center justify-between gap-2 px-3.5 py-2 bg-[#14243A] border-b border-slate-700/70 text-xs">
+        <div className="flex items-center gap-2 min-w-0 text-slate-200 font-medium">
+          <FileCode2 className="w-3.5 h-3.5 text-[#0F9D8A] shrink-0" />
+          <span className="truncate">{title ?? language.toUpperCase()}</span>
         </div>
         <button
           type="button"

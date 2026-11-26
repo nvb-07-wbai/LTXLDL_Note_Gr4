@@ -3030,7 +3030,7 @@ export const VIVA_THEORY_BANK: VivaQuestion[] = [
     "evaluationGoal": "Lý do chọn PPG, Median, IQR và rIQR thay vì chỉ dùng Price Mean & Std.",
     "question": "Trình bày mạch lạc lý do thống kê khiến cặp chỉ số **PPG + Median + rIQR** vượt trội hơn **Price + Mean + Std** trên dữ liệu giá lưu trú ngắn hạn.",
     "quickAnswer": "1. **PPG (`Price / Accommodates`)** chuẩn hóa khác biệt sức chứa từ 1–16 khách; 2. **Median** không bị các giá đầu cơ cực đoan (vd >153.000 MXN) kéo vọt như **Mean**; 3. **rIQR = (Q3−Q1)/Median** chuẩn hóa độ trải rộng tương đối theo chính mặt bằng giá của từng khu vực mà không phụ thuộc đơn vị tiền hay bị đuôi cực đoan phá hủy như **Std**.",
-    "explanation": "Ví dụ kinh điển ở CDMX: Xochimilco đứng #1 Mean Price (3.848 MXN) nhưng rơi xuống #11 Median PPG (377 MXN) vì nhà vườn sức chứa lớn.",
+    "explanation": "Ví dụ kinh điển ở CDMX: Xochimilco đứng #1 Mean Price (3.848 MXN) nhưng rơi xuống #11 Mean PPG (521 MXN) và Median PPG chỉ còn 377 MXN (#10/15) vì nhà vườn sức chứa lớn.",
     "projectLink": "src/kpi.py:L69-L84, L235",
     "codeLocation": "src/kpi.py:L69-L84, L235",
     "proofExample": "src/kpi.py:L69-L84, L215-L252; `kpi_by_neighbourhood.csv`.",
@@ -3986,7 +3986,7 @@ export const VIVA_THEORY_BANK: VivaQuestion[] = [
     "followUpQA": [
       {
         "q": "Chuỗi `\"$0.00\"` trong cột `price` có parse được thành số qua Regex không và bước nào trong `qa.py` bắt nó?",
-        "a": "Regex parse được thành `0.0`, sau đó `RULE_MISSING_PRICE` ở `L96` (`price_numeric <= 0`) bắt ngay và gắn cờ `qa_missing_price = True` + đặt `price_mxn = NaN`."
+        "a": "Regex parse được thành `0.0`, sau đó `RULE_MISSING_PRICE` ở `L116` (`price_numeric <= 0`) bắt ngay và gắn cờ `qa_missing_price = True` (cột `price_mxn` vẫn giữ `0.0` và tầng `src/kpi.py` dùng mặt nạ `~qa_missing_price & price > 0` để loại khỏi phép tính)."
       }
     ],
     "commonMistakes": [

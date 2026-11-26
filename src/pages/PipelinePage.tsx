@@ -282,7 +282,7 @@ export function PipelinePage() {
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
-            <div className="xl:col-span-6 space-y-4">
+            <div className="xl:col-span-6 min-w-0 space-y-4">
               <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="text-lg font-extrabold">{stage.name}</h2>
@@ -298,17 +298,17 @@ export function PipelinePage() {
                 <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{stage.goal}</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60">
+                  <div className="min-w-0 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60">
                     <div className="font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Input</div>
-                    <ul className="space-y-1 list-disc pl-4 text-slate-700 dark:text-slate-300 font-mono text-[11px]">
+                    <ul className="space-y-1 list-disc pl-4 text-slate-700 dark:text-slate-300 font-mono text-[11px] [overflow-wrap:anywhere]">
                       {stage.inputs.map((inp) => (
                         <li key={inp}>{inp}</li>
                       ))}
                     </ul>
                   </div>
-                  <div className="p-3 rounded-xl bg-[#E7F6F2]/70 dark:bg-teal-950/30 border border-[#0F9D8A]/30">
+                  <div className="min-w-0 p-3 rounded-xl bg-[#E7F6F2]/70 dark:bg-teal-950/30 border border-[#0F9D8A]/30">
                     <div className="font-bold text-[#0F9D8A] dark:text-teal-300 uppercase mb-1">Output</div>
-                    <ul className="space-y-1 list-disc pl-4 text-slate-700 dark:text-slate-300 font-mono text-[11px]">
+                    <ul className="space-y-1 list-disc pl-4 text-slate-700 dark:text-slate-300 font-mono text-[11px] [overflow-wrap:anywhere]">
                       {stage.outputs.map((out) => (
                         <li key={out}>{out}</li>
                       ))}
@@ -347,19 +347,19 @@ export function PipelinePage() {
                   <div className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-1.5">
                     Nguyên lý hoạt động
                   </div>
-                  <ul className="space-y-1.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 list-disc pl-4">
+                  <ul className="space-y-1.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 list-disc pl-4 [overflow-wrap:anywhere]">
                     {stage.mechanism.map((m, idx) => (
                       <li key={idx}>{m}</li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-900/50 text-xs">
+                <div className="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/70 dark:border-blue-900/50 text-xs [overflow-wrap:anywhere]">
                   <div className="font-bold text-[#2563EB] dark:text-blue-400 mb-1">Lý do lựa chọn thiết kế</div>
                   <p className="text-slate-700 dark:text-slate-300">{stage.rationale}</p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/70 dark:border-rose-900/50 text-xs space-y-1">
+                <div className="p-3.5 rounded-xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/70 dark:border-rose-900/50 text-xs space-y-1 [overflow-wrap:anywhere]">
                   <div className="font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
                     <AlertTriangle className="w-3.5 h-3.5" /> Rủi ro nếu triển khai sai
                   </div>
@@ -370,7 +370,7 @@ export function PipelinePage() {
                   </ul>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-900/50 text-xs">
+                <div className="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-900/50 text-xs [overflow-wrap:anywhere]">
                   <div className="font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5 mb-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Cách kiểm tra kết quả
                   </div>
@@ -379,7 +379,7 @@ export function PipelinePage() {
               </div>
             </div>
 
-            <div className="xl:col-span-6 space-y-4">
+            <div className="xl:col-span-6 min-w-0 space-y-4">
               <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold flex items-center gap-2">
@@ -529,7 +529,7 @@ export function PipelinePage() {
       {/* ================= TAB 2: CODE DEPENDENCY EXPLORER ================= */}
       {tab === 'deps' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+          <div className="lg:col-span-5 min-w-0 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-3">
             <h2 className="text-base font-bold flex items-center gap-2">
               <GitBranch className="w-4 h-4 text-[#0F9D8A] dark:text-teal-300" /> Đồ thị phụ thuộc thực tế (10 tệp cốt lõi)
             </h2>
@@ -563,7 +563,7 @@ export function PipelinePage() {
             </div>
           </div>
 
-          <div className="lg:col-span-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+          <div className="lg:col-span-7 min-w-0 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
               <div>
                 <h2 className="text-lg font-extrabold font-mono text-[#2563EB] dark:text-blue-400">{activeDep.file}</h2>
@@ -651,7 +651,7 @@ export function PipelinePage() {
       {tab === 'functions' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left: File + Search + List */}
-          <div className="lg:col-span-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 space-y-3">
+          <div className="lg:col-span-4 min-w-0 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 space-y-3">
             <div className="relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -715,7 +715,7 @@ export function PipelinePage() {
           </div>
 
           {/* Right: 10-Part A-J Detail */}
-          <div className="lg:col-span-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-5">
+          <div className="lg:col-span-8 min-w-0 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-5">
             <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="px-2.5 py-1 rounded-full bg-[#E7F6F2] dark:bg-teal-950/60 text-[#0F9D8A] dark:text-teal-300 font-mono text-xs font-bold">
@@ -827,7 +827,7 @@ export function PipelinePage() {
       {tab === 'trace' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Trace Scenario Selector */}
-          <div className="lg:col-span-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 space-y-2">
+          <div className="lg:col-span-4 min-w-0 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 space-y-2">
             <h2 className="text-sm font-bold px-1">Chọn kịch bản Truy vết Thực thi</h2>
             <div className="space-y-1.5">
               {CODE_TRACE_SCENARIOS.map((sc) => {
@@ -859,7 +859,7 @@ export function PipelinePage() {
           </div>
 
           {/* Step-by-Step Debugger & Execution Prediction */}
-          <div className="lg:col-span-8 space-y-4">
+          <div className="lg:col-span-8 min-w-0 space-y-4">
             {/* Step 1: Prediction Before Reveal */}
             <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">

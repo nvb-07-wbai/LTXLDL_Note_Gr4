@@ -281,8 +281,12 @@ export function WorkspaceLayout({
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <button
                 type="button"
-                onClick={() => setSearchOpen(true)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 text-xs text-slate-500 dark:text-slate-300 hover:border-[#2563EB] transition-colors cursor-pointer"
+                disabled={strictLocked}
+                onClick={() => {
+                  if (!strictLocked) setSearchOpen(true);
+                }}
+                title={strictLocked ? 'Đang khóa tìm kiếm khi thi Strict Viva Mode' : 'Tìm kiếm nhanh (Ctrl+K)'}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 text-xs text-slate-500 dark:text-slate-300 hover:border-[#2563EB] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Search className="w-3.5 h-3.5" />
                 <span className="hidden md:inline">Tìm kiếm nhanh...</span>

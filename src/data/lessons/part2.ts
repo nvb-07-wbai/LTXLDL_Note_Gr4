@@ -15,7 +15,8 @@ export const LESSONS_PART_2: LessonItem[] = [
     ],
     coreConcepts: [
       'pandas 3 str.contains mặc định regex=True, còn str.replace mặc định regex=False.',
-      'Word boundary \\b: r"\\bnot\\b" tránh khớp nhầm vào "notable".',
+      'Word boundary \\b: r"\\bnot\\b" tránh khớp nhầm vào "notable" (nhưng lưu ý r"\\bnot\\b" KHÔNG khớp "isn\'t" — cần n[\'’]t).',
+      'Bẫy dấu thập phân châu Âu (","): Regex r"[^\\d.-]" đúng cho CDMX ("$1,250.00"), nhưng sẽ biến "1.250,50 €" thành 1.25 (giảm 1.000x!) nếu không tách locale.',
       'Giữ cột gốc trước khi chuyển đổi (price -> price_mxn) để phân biệt thiếu từ nguồn với lỗi parse.',
     ],
     terms: [
@@ -75,9 +76,10 @@ print("Có \\b:", s.str.contains(r"\\bnot\\b", regex=True).tolist())`,
       'Nhận diện bẫy so sánh theo kỳ: ngày vượt mốc chụp, kỳ cuối chưa trọn vẹn và lệch shift khi thiếu kỳ.',
     ],
     coreConcepts: [
-      'Luôn truyền format="%Y-%m-%d" (hoặc "%d/%m/%Y") để tránh đảo ngày/tháng âm thầm (03/07 vs 07/03).',
-      'Hiệu hai Timestamp cho Timedelta; dùng .dt.days để quy đổi ra số ngày chuẩn.',
-      'Kỳ chưa trọn vẹn (vd: tháng 6 mới đến ngày 15 hoặc 29) không được so sánh ngang hàng với tháng đủ 30/31 ngày.',
+      'Luôn truyền format="%Y-%m-%d" (hoặc "%d/%m/%Y") và errors="coerce" (trả NaT cho chuỗi ngày sai định dạng thay vì crash) để tránh đảo ngày/tháng âm thầm (03/07 vs 07/03).',
+      'NaT (Not a Time) hành xử tương tự NaN: NaT == NaT là False và mọi phép so sánh (> ref_date) cho False -> bắt buộc kiểm .notna().',
+      'Hiệu hai Timestamp cho Timedelta; dùng .dt.days để quy đổi ra số ngày chuẩn; cẩn trọng đồng bộ tz-naive vs tz-aware trước khi so sánh.',
+      'Pandas mới dùng tần suất "ME" (Month End) và "QE" (Quarter End) thay cho "M"/"Q" đã ngừng hỗ trợ; kỳ cuối chưa trọn vẹn (t4: 15/06) không được so sánh ngang hàng với tháng đủ 30 ngày.',
     ],
     terms: [
       { term: 'Timestamp', meaning: 'Kiểu dữ liệu biểu diễn một mốc thời gian cụ thể trong pandas.' },
@@ -144,7 +146,7 @@ print(days_stale.tolist())  # [149.0, -4.0 (lỗi tương lai!), nan]`,
     ],
     terms: [
       { term: 'QA Flagging', meaning: 'Tạo các cột boolean qa_* đánh dấu bất thường mà không làm mất bản ghi gốc.' },
-      { term: 'IQR vs Quantile', meaning: 'IQR = Q3 - Q1 đo độ rộng 50% giữa; Quantile P01/P99 cắt theo tỷ lệ phần trăm cụ thể ở hai đuôi.' },
+      { term: 'IQR vs Quantile vs MAD', meaning: 'IQR = Q3 - Q1; Quantile P01/P99 cắt 2% đuôi; MAD = median(|x - median(x)|) bền vững hơn Z-score không bị masking effect (nhưng bằng 0 nếu >50% giá trị trùng nhau).' },
       { term: 'Winsorization (clip)', meaning: 'Chặn các giá trị vượt ngưỡng về đúng giá trị ngưỡng (thay đổi số liệu gốc, khác với xóa dòng trimming).' },
     ],
     essence: 'Làm sạch dữ liệu không phải là "xóa hết mọi dòng có vấn đề" hay "điền 0 cho hết NaN". Nếu một căn hộ thiếu giá ở t2 (1.000/1.000 căn) mà bạn gọi dropna(), toàn bộ bảng t2 biến mất và mất luôn dữ liệu Occupancy/Review Velocity vẫn đang hoàn toàn hợp lệ!',
