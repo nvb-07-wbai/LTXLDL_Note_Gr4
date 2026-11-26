@@ -4,6 +4,8 @@ import {
   CONTEXT_QUESTIONS,
   CODE_AUDIT_DISCREPANCIES,
   AI_POLICY_SUMMARY,
+  SNAPSHOT_AUDIT_TABLE,
+  TIME_CONCEPTS_DISTINCTION,
 } from '../data/projectData';
 
 export function ProjectPage() {
@@ -89,6 +91,69 @@ export function ProjectPage() {
               <div className="text-base font-bold mt-0.5">5.000 reviews</div>
               <div className="text-slate-500 mt-0.5">1.000 Mẫu LLM (361 căn) · 100 Nhãn tay</div>
             </div>
+          </div>
+        </section>
+      </div>
+
+      {/* Snapshot Audit & Time Concepts Distinction */}
+      <div className="space-y-6">
+        <section className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h2 className="text-base font-bold flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-[#0F9D8A]" /> Bảng Kiểm toán Dữ liệu 4 Snapshot &amp; Bản sao Google Drive (27/09/2025)
+            </h2>
+            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#E7F6F2] text-[#0F9D8A] dark:bg-teal-950/60 dark:text-teal-300">
+              Đã đối chiếu trực tiếp từ dữ liệu thô &amp; tag final
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500">
+                  <th className="py-2 pr-3">Snapshot</th>
+                  <th className="py-2 pr-3">Nguồn thô &amp; Trạng thái HTTP</th>
+                  <th className="py-2 pr-3">Dữ liệu lọc Nhóm 4</th>
+                  <th className="py-2 pr-3">last_scraped</th>
+                  <th className="py-2 pr-3">Schema &amp; Giá (MXN)</th>
+                  <th className="py-2">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
+                {SNAPSHOT_AUDIT_TABLE.map((row) => (
+                  <tr key={row.snapshotIso}>
+                    <td className="py-2.5 pr-3 font-mono font-bold whitespace-nowrap">
+                      <div>{row.displayDate}</div>
+                      <div className="text-[11px] font-normal text-slate-500">{row.snapshotIso} · {row.label}</div>
+                    </td>
+                    <td className="py-2.5 pr-3 text-slate-600 dark:text-slate-300">{row.rawStatus}</td>
+                    <td className="py-2.5 pr-3 font-medium">{row.filteredCounts}</td>
+                    <td className="py-2.5 pr-3 font-mono text-[11px] text-slate-500">{row.lastScrapedRange}</td>
+                    <td className="py-2.5 pr-3 text-slate-600 dark:text-slate-300">{row.schemaAndPrice}</td>
+                    <td className="py-2.5 font-semibold text-[#0F9D8A] whitespace-nowrap">{row.auditStatus}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5">
+          <h2 className="text-base font-bold flex items-center gap-2 mb-3">
+            <Calendar className="w-4 h-4 text-[#2563EB]" /> Phân biệt 6 Khái niệm Thời gian (Cấm nhầm lẫn khi vấn đáp)
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {TIME_CONCEPTS_DISTINCTION.map((item) => (
+              <div
+                key={item.concept}
+                className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-800 text-xs space-y-1"
+              >
+                <div className="font-bold text-[#2563EB] dark:text-blue-400">{item.concept}</div>
+                <p className="text-slate-700 dark:text-slate-300">{item.meaning}</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 pt-0.5">
+                  <strong>Thực tế BTL:</strong> {item.exampleInBtl}
+                </p>
+              </div>
+            ))}
           </div>
         </section>
       </div>

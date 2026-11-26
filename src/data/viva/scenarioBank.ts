@@ -3388,5 +3388,229 @@ export const VIVA_SCENARIO_BANK: VivaQuestion[] = [
     "relatedFiles": [
       "src/viz.py"
     ]
+  },
+  {
+    "id": "vs-095",
+    "category": "B",
+    "categoryLabel": "CSV, API, SQL, DuckDB",
+    "bucket": "scenario",
+    "topics": [
+      "File I/O",
+      "Architecture"
+    ],
+    "level": 4,
+    "levelLabel": "Cấp độ 4 – Vận dụng",
+    "difficulty": "Cơ bản",
+    "qType": "Tình huống",
+    "evaluationGoal": "Giải thích lý do snapshot đầu tiên là 27/09/2025 và cách đối chiếu bản sao Google Drive khi server trả HTTP 403.",
+    "question": "Vì sao snapshot đầu tiên của Nhóm 4 là ngày `27/09/2025` (`2025-09-27`), và khi server Inside Airbnb trả HTTP 403 thì làm sao xác minh bản sao Google Drive đúng là dữ liệu gốc đã dùng?",
+    "quickAnswer": "Mốc `2025-09-27` được khai báo đầu tiên trong `configs/mexico-city.yaml` (`snapshots`). Do Inside Airbnb chỉ giữ công khai các bản gần đây (mốc `2025-09-27` trả HTTP 403), nhóm lưu bản sao thô trên Google Drive gồm 4 tệp (`listings.csv.gz` 27.051 dòng, `calendar.csv.gz` 9.873.624 dòng, `reviews.csv.gz` 1.454.740 dòng, `neighbourhoods.geojson` 16 quận). Khi lọc lại theo ID phân công, kết quả khớp 100% với `kpi_by_snapshot.csv` (1.000 listings, 960 giá hợp lệ, median `1.159,5` MXN).",
+    "explanation": "Kiểm chứng bằng cách chạy `filter_data_from_sheet.py` + `apply_qa_rules()` trực tiếp trên bản sao Drive cho ra đúng `1.000` listings (`last_scraped`: 261 dòng `2025-09-27`, 739 dòng `2025-09-28`), `365.000` dòng calendar (0 giá), `5.000` reviews, `960` giá hợp lệ, `mean = 1535.15`, `median = 1159.5`, `IQR = 912.0`, `outliers = 20` — trùng khớp từng con số với `reports/qa_report.csv` và `data/processed/kpi_by_snapshot.csv`.",
+    "projectLink": "configs/mexico-city.yaml:L10-L14",
+    "codeLocation": "configs/mexico-city.yaml:L10-L14 & src/download.py:L43-L52",
+    "proofExample": "Google Drive `2025-09-27`: `listings.csv.gz` (SHA-256 `af74baa1...`, 14.513.553 bytes) -> lọc ra 1.000 căn, 960 giá hợp lệ, Median `1159.5` MXN khớp `kpi_by_snapshot.csv`.",
+    "followUpQuestions": [
+      "Nếu không có cả bản local lẫn bản sao Drive cho mốc `2025-09-27`, nhóm có được phép tự lấy snapshot `2025-12-29` đổi tên thành `2025-09-27` để chạy tiếp không?"
+    ],
+    "followUpQA": [
+      {
+        "q": "Nếu không có cả bản local lẫn bản sao Drive cho mốc `2025-09-27`, nhóm có được phép tự lấy snapshot `2025-12-29` đổi tên thành `2025-09-27` để chạy tiếp không?",
+        "a": "TUYỆT ĐỐI KHÔNG! Làm vậy là ngụy tạo dữ liệu (trộn kỳ), phá vỡ Review Velocity Q1 (sẽ bằng 0) và làm sai lệch toàn bộ chuỗi thời gian."
+      }
+    ],
+    "commonMistakes": [
+      "Nhầm ngày đầu tiên là 25/09/2025 hoặc nghĩ HTTP 403 là do code `download.py` bị lỗi."
+    ],
+    "relatedFiles": [
+      "configs/mexico-city.yaml",
+      "src/download.py",
+      "data/processed/kpi_by_snapshot.csv"
+    ]
+  },
+  {
+    "id": "vs-096",
+    "category": "C",
+    "categoryLabel": "String, Regex, Datetime",
+    "bucket": "scenario",
+    "topics": [
+      "Datetime",
+      "QA"
+    ],
+    "level": 3,
+    "levelLabel": "Cấp độ 3 – Truy vết code",
+    "difficulty": "Cơ bản",
+    "qType": "Phân tích kết quả",
+    "evaluationGoal": "Phân biệt rạch ròi 6 loại mốc thời gian: Snapshot date, Download date, last_scraped, Calendar date, Review date, Report date.",
+    "question": "Trong BTL Inside Airbnb, `download date` khác `snapshot date` thế nào, và `last_scraped` khác `snapshot date` ra sao?",
+    "quickAnswer": "`Snapshot date` (ví dụ `2025-09-27`) là ngày phát hành bộ dữ liệu của Inside Airbnb; `download date` là ngày sinh viên tải tệp về máy (có thể sau nhiều tuần/tháng); còn `last_scraped` là ngày scraper thực tế cào từng listing (ở mốc `2025-09-27`, có 261 căn ghi `2025-09-27` và 739 căn ghi `2025-09-28`).",
+    "explanation": "Tuyệt đối không lấy `download date` hay `report date` đặt tên thư mục snapshot. Bên cạnh đó, `Calendar date` là ngày lịch tương lai 365 ngày (`2025-09-27 .. 2026-09-27` tại t1) và `Review date` là ngày khách viết đánh giá (`2011-04-02 .. 2025-09-28` tại t1).",
+    "projectLink": "src/qa.py:L278-L295",
+    "codeLocation": "src/qa.py:L278-L295 & src/kpi.py:L133",
+    "proofExample": "Ở `t1 = 2025-09-27`, cột `last_scraped` trong 1.000 căn phân công gồm `2025-09-27` (261 căn) và `2025-09-28` (739 căn).",
+    "followUpQuestions": [
+      "Tại sao `src/qa.py` dùng `last_scraped` làm mốc kiểm tra `last_review <= ref_date`, nhưng `src/kpi.py` lại dùng `snapshot date` để tính `delta_months`?"
+    ],
+    "followUpQA": [
+      {
+        "q": "Tại sao `src/qa.py` dùng `last_scraped` làm mốc kiểm tra `last_review <= ref_date`, nhưng `src/kpi.py` lại dùng `snapshot date` để tính `delta_months`?",
+        "a": "Vì một review viết ngày `2025-09-28` cho căn cào ngày `2025-09-28` là hoàn toàn hợp lệ (nếu so với `2025-09-27` sẽ báo lỗi oan), còn ở cấp tổng hợp thị trường thì dùng `snapshot date` để đồng nhất khoảng thời gian cho cả 1.000 căn."
+      }
+    ],
+    "commonMistakes": [
+      "Ghi ngày tải file về máy hoặc ngày làm báo cáo làm ngày snapshot."
+    ],
+    "relatedFiles": [
+      "src/qa.py",
+      "src/kpi.py"
+    ]
+  },
+  {
+    "id": "vs-097",
+    "category": "D",
+    "categoryLabel": "Data Cleaning & QA",
+    "bucket": "scenario",
+    "topics": [
+      "QA",
+      "File I/O"
+    ],
+    "level": 5,
+    "levelLabel": "Cấp độ 5 – Phản biện",
+    "difficulty": "Nâng cao",
+    "qType": "Tình huống",
+    "evaluationGoal": "Quy trình kiểm toán khi phát hiện dữ liệu trên Google Drive khác với dữ liệu đang lưu trong repository/local.",
+    "question": "Tình huống: Nếu khi đối chiếu, phát hiện tệp `listings.csv.gz` trên Google Drive khác kích thước hoặc SHA-256 so với bản trong máy/repository thì phải xử lý theo trình tự nào?",
+    "quickAnswer": "Không được ghi đè mù quáng và tuyệt đối không mở lưu lại CSV bằng Excel. Phải: (1) kiểm tra SHA-256, dung lượng, số dòng và phân bố `last_scraped`; (2) lọc thử bằng ID phân công và đối chiếu với `reports/qa_report.csv` + `kpi_by_snapshot.csv` ở tag `final`; (3) chỉ khôi phục từ bản nào khớp nguồn chuẩn đã tạo ra kết quả BTL, đồng thời ghi rõ sai lệch vào báo cáo kiểm toán.",
+    "explanation": "Thứ tự ưu tiên xác minh: dữ liệu thực tế & metadata tải xuống -> cấu hình YAML & code tại tag `final` -> kết quả CSV đầu ra -> báo cáo PDF -> nội dung website.",
+    "projectLink": "src/filter_data_from_sheet.py:L115-L147",
+    "codeLocation": "src/download.py & src/filter_data_from_sheet.py",
+    "proofExample": "Không chỉnh sửa repository BTL nguồn; mọi sai lệch giữa Drive và bản local phải được ghi nhận minh bạch trong `SNAPSHOT_AUDIT_REPORT.md`.",
+    "followUpQuestions": [
+      "Tại sao tuyệt đối cấm mở tệp `.csv` hoặc `.csv.gz` rồi bấm Save bằng Microsoft Excel?"
+    ],
+    "followUpQA": [
+      {
+        "q": "Tại sao tuyệt đối cấm mở tệp `.csv` hoặc `.csv.gz` rồi bấm Save bằng Microsoft Excel?",
+        "a": "Excel tự động biến ID 19 chữ số thành số thực dạng `1.49E+18` (mất các chữ số cuối), tự đổi định dạng ngày `YYYY-MM-DD` theo locale máy và làm hỏng encoding UTF-8!"
+      }
+    ],
+    "commonMistakes": [
+      "Thấy tên file giống nhau (`listings.csv.gz`) là mặc định nội dung giống nhau mà không kiểm tra SHA-256 và số dòng."
+    ],
+    "relatedFiles": [
+      "src/download.py",
+      "src/filter_data_from_sheet.py"
+    ]
+  },
+  {
+    "id": "vs-098",
+    "category": "I",
+    "categoryLabel": "Đọc hiểu Source Code",
+    "bucket": "scenario",
+    "topics": [
+      "Filter",
+      "QA"
+    ],
+    "level": 3,
+    "levelLabel": "Cấp độ 3 – Truy vết code",
+    "difficulty": "Vận dụng",
+    "qType": "Truy vết",
+    "evaluationGoal": "Cách xác minh số lượng bản ghi listings, calendar và reviews qua từng bước pipeline.",
+    "question": "Làm thế nào xác minh số lượng `listings`, `calendar` và `reviews` của mỗi snapshot là chính xác và không bị lẫn dữ liệu ngoài phân công?",
+    "quickAnswer": "Ở bước `filter_data_from_sheet.py`, đối chiếu log và số dòng từng snapshot: `listings.csv` = `1.000` (lọc theo `id`), `calendar.csv` = `365.000` (1.000 × 365 ngày, lọc theo `listing_id`, cột `price` rỗng 100%), `reviews.csv` = `5.000` (lọc theo `id` tức `review_id`, không phải `listing_id`), `reviews_llm.csv` = `1.000`, `reviews_labeled.csv` = `100`.",
+    "explanation": "Nếu lọc nhầm `reviews.csv` theo `listing_id`, số dòng sẽ vọt lên hàng chục nghìn thay vì 5.000. Ở bước `qa.py`, `RULE_DEDUPLICATION` phải ghi `kpi_before = 1000`, `kpi_after = 1000` ở cả 4 mốc trong `reports/qa_report.csv`.",
+    "projectLink": "src/filter_data_from_sheet.py:L207-L232",
+    "codeLocation": "src/filter_data_from_sheet.py:L207-L232",
+    "proofExample": "Log chuẩn mỗi snapshot: `listings=1000, calendar=365000, reviews=5000, LLM=1000, manual=100`.",
+    "followUpQuestions": [
+      "Tại sao `calendar.csv` có cột `price` trong schema (7 cột) nhưng ở bộ dữ liệu CDMX cột này lại trống 0/9.873.624 dòng?"
+    ],
+    "followUpQA": [
+      {
+        "q": "Tại sao `calendar.csv` có cột `price` trong schema (7 cột) nhưng ở bộ dữ liệu CDMX cột này lại trống 0/9.873.624 dòng?",
+        "a": "Inside Airbnb đã ngừng xuất giá theo ngày trong `calendar.csv.gz` ở các đợt cào mới và để trống hoàn toàn cột này; do đó pipeline phải lấy `price` từ `listings.csv` chứ không được tính giá từ `calendar.csv`."
+      }
+    ],
+    "commonMistakes": [
+      "Mô tả `calendar.csv` có giá theo từng ngày trong năm hoặc lọc `reviews` theo `listing_id`."
+    ],
+    "relatedFiles": [
+      "src/filter_data_from_sheet.py",
+      "reports/qa_report.csv"
+    ]
+  },
+  {
+    "id": "vs-099",
+    "category": "F",
+    "categoryLabel": "KPI & Công thức",
+    "bucket": "scenario",
+    "topics": [
+      "KPI",
+      "Storytelling"
+    ],
+    "level": 5,
+    "levelLabel": "Cấp độ 5 – Phản biện",
+    "difficulty": "Nâng cao",
+    "qType": "Phản biện",
+    "evaluationGoal": "Đảm bảo tính công bằng khi so sánh KPI giữa hai snapshot khác nhau.",
+    "question": "Khi so sánh KPI (như Median Price, PPG, Occupancy, Review Velocity) giữa hai snapshot, cần đảm bảo những điều kiện gì để không so sánh khập khiễng?",
+    "quickAnswer": "(1) Cố định cùng tập 1.000 listing phân công (balanced panel); (2) Không trộn snapshot thiếu giá (`t2`: 0/1.000) bằng cách nội suy giả; (3) Giữ đồng nhất đơn vị `MXN` và quy tắc QA; (4) Chuẩn hóa khoảng cách ngày khi tính Review Velocity (`delta_months = days / 30.0`); (5) Khi vẽ biểu đồ đa khung phải dùng chung thang đo (`sharex=True`, `sharey=True`).",
+    "explanation": "Nếu một kỳ có căn bị thiếu giá (`t1`: 960, `t3`: 988, `t4`: 980), phải báo cáo rõ cỡ mẫu hợp lệ (`valid_price_count`) đi kèm thay vì ngầm hiểu cả 1.000 căn đều có giá.",
+    "projectLink": "src/kpi.py:L114-L137",
+    "codeLocation": "src/kpi.py:L114-L250",
+    "proofExample": "`kpi_by_snapshot.csv` ghi rõ `valid_price_count` = 960 (t1), 0 (t2), 988 (t3), 980 (t4) và `occ_n` = 993, 997, 1000, 995.",
+    "followUpQuestions": [
+      "Tại sao khoảng cách ngày từ `t1` (2025-09-27) đến `t2` (2025-12-29) là 93 ngày, còn từ `t3` (2026-03-30) đến `t4` (2026-06-15) chỉ có 77 ngày, nếu không chia cho `delta_months` thì sai thế nào?"
+    ],
+    "followUpQA": [
+      {
+        "q": "Tại sao khoảng cách ngày từ `t1` (2025-09-27) đến `t2` (2025-12-29) là 93 ngày, còn từ `t3` (2026-03-30) đến `t4` (2026-06-15) chỉ có 77 ngày, nếu không chia cho `delta_months` thì sai thế nào?",
+        "a": "Kỳ dài hơn 16 ngày sẽ tự nhiên tích lũy nhiều review hơn; không quy đổi về đơn vị `reviews / 30 ngày` sẽ đánh giá nhầm rằng tốc độ đặt phòng ở Q3 chậm hơn thực tế."
+      }
+    ],
+    "commonMistakes": [
+      "So sánh số lượng review tăng thêm tuyệt đối giữa hai khoảng thời gian có độ dài ngày khác nhau (93 ngày vs 91 ngày vs 77 ngày)."
+    ],
+    "relatedFiles": [
+      "src/kpi.py",
+      "data/processed/kpi_by_snapshot.csv"
+    ]
+  },
+  {
+    "id": "vs-100",
+    "category": "J",
+    "categoryLabel": "Kiến trúc & Toàn Pipeline",
+    "bucket": "scenario",
+    "topics": [
+      "Architecture",
+      "KPI"
+    ],
+    "level": 5,
+    "levelLabel": "Cấp độ 5 – Phản biện",
+    "difficulty": "Nâng cao",
+    "qType": "Tình huống",
+    "evaluationGoal": "Truy vết lan truyền lỗi (blast radius) khi tải nhầm dữ liệu của một mốc snapshot.",
+    "question": "Tình huống: Nếu `download.py` hoặc thao tác thủ công tải nhầm dữ liệu của mốc `2026-03-30` đặt vào thư mục `data/raw/2025-09-27/`, những kết quả nào trong pipeline bị ảnh hưởng?",
+    "quickAnswer": "Toàn bộ chuỗi dữ liệu `t1` và hiệu số `t1 -> t2` bị sai lệch: `qa_report.csv` dòng `2025-09-27` sai; `price_mxn_t1`, `ppg_t1`, `occ_t1`, `ghost_t1` sai; đặc biệt `review_velocity_q1` (`t2 - t1`) bị âm (`diff < 0`) dẫn đến hàng loạt `NaN` và làm hỏng cả `ghost_t2` lẫn `occ_t2`. Các biểu đồ `kpi_ppg_snapshots.png`, `kpi_review_ghost.png`, `kpi_occupancy_gap.png` đều sai theo. Riêng `llm.py` / `baseline.py` / `evaluate.py` không bị ảnh hưởng nếu `t4/reviews_llm.csv` vẫn đúng.",
+    "explanation": "Đây là bài kiểm tra tư duy truy vết DAG của pipeline: `t1` vừa là đầu vào độc lập cho các KPI tại `t1`, vừa là mốc gốc để tính `review_velocity_q1`, `ghost_t2` và `occ_t2` (do `exclude_ghost=True`).",
+    "projectLink": "run_pipeline.py:L9-L18",
+    "codeLocation": "src/kpi.py:L114-L212 & src/llm.py:L65-L75",
+    "proofExample": "Nếu `t1` bị thay bằng `t3`, `number_of_reviews` ở `t1` giả sẽ lớn hơn `t2`, khiến `diff = nr_curr - nr_prev < 0` -> `review_velocity_q1` thành `NaN` hàng loạt.",
+    "followUpQuestions": [
+      "Nếu phát hiện nhầm dữ liệu ở `data/raw/2025-09-27/` và đã thay lại đúng file, tại sao chỉ chạy lại `src/kpi.py` là chưa đủ?"
+    ],
+    "followUpQA": [
+      {
+        "q": "Nếu phát hiện nhầm dữ liệu ở `data/raw/2025-09-27/` và đã thay lại đúng file, tại sao chỉ chạy lại `src/kpi.py` là chưa đủ?",
+        "a": "Vì `kpi.py` đọc dữ liệu đã lọc và đã gắn cờ QA ở `data/processed/2025-09-27/listings.csv`; phải chạy lại từ `filter_data_from_sheet.py` -> `qa.py` -> `kpi.py` -> `viz.py` (có thể bỏ qua API bằng `--skip-llm`)."
+      }
+    ],
+    "commonMistakes": [
+      "Nghĩ rằng nhầm dữ liệu mốc `t1` chỉ làm sai mỗi bảng của `t1` hoặc làm sai cả mô hình LLM."
+    ],
+    "relatedFiles": [
+      "run_pipeline.py",
+      "src/kpi.py",
+      "src/qa.py"
+    ]
   }
 ];

@@ -17,7 +17,7 @@ export const PIPELINE_STAGES: PipelineStage[] = [
       'Dựng URL động: https://data.insideairbnb.com/{data_root}/{snap}/{subfolder}/{fname}.',
       'Idempotent check: nếu file đích đã tồn tại (> 0 bytes) và không có --force thì bỏ qua.',
       'Tải streaming theo chunk 65.536 bytes vào tệp tạm .tmp trước khi dùng tmp.replace(dest).',
-      'Nếu gặp HTTP 403/404: dừng ngay không retry vô ích, dùng bản local dự phòng nếu có.',
+      'Nếu gặp HTTP 403/404: dừng ngay không retry vô ích, dùng bản local dự phòng nếu có (thực tế mốc t1 = 2025-09-27 trả HTTP 403 trên server nên dùng bản gốc đã tải trước đó, đã đối chiếu khớp SHA-256 với bản sao Google Drive: 27.051 listings / 9.873.624 calendar không có price / 1.454.740 reviews).',
       'Nếu lỗi mạng/IOError/thiếu byte (Content-Length mismatch): xóa .tmp và chờ Exponential Backoff (2**attempt = 1s, 2s).',
     ],
     rationale: 'Ghi qua tệp tạm .tmp tránh file hỏng nửa chừng khi rớt mạng; Exponential Backoff tránh spam server; tự cài bằng requests + time.sleep giúp requirements.txt gọn nhẹ không phụ thuộc tenacity.',

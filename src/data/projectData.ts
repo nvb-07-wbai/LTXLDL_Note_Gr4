@@ -237,3 +237,79 @@ export const AI_POLICY_SUMMARY = {
     embeddedPipeline: 'AI tích hợp trong pipeline (src/llm.py): gọi Google Gemini API (gemini-3.5-flash-lite) với Pydantic Structured Outputs để gán nhãn 1.000 review.',
   },
 };
+
+export const SNAPSHOT_AUDIT_TABLE = [
+  {
+    snapshotIso: '2025-09-27',
+    displayDate: '27/09/2025',
+    label: 't1 (Q1)',
+    rawStatus: 'HTTP 403 trên Inside Airbnb; đã xác minh qua bản sao Google Drive (27.051 listings, 9.873.624 calendar, 1.454.740 reviews, 16 quận GeoJSON)',
+    filteredCounts: '1.000 listings · 365.000 calendar (0 giá) · 5.000 reviews',
+    lastScrapedRange: '2025-09-27 (261 căn) .. 2025-09-28 (739 căn)',
+    schemaAndPrice: '79 cột listings · 960/1.000 có price hợp lệ (Median 1.159,5 MXN)',
+    auditStatus: 'Đã xác minh khớp 100% Drive & BTL',
+  },
+  {
+    snapshotIso: '2025-12-29',
+    displayDate: '29/12/2025',
+    label: 't2 (Q2)',
+    rawStatus: 'HTTP 200 trên Inside Airbnb (listings 10,8 MB, calendar 21,2 MB, reviews 138,7 MB)',
+    filteredCounts: '1.000 listings · 365.000 calendar · 5.000 reviews',
+    lastScrapedRange: 'Cào quanh mốc 2025-12-29 (theo qa_report.csv)',
+    schemaAndPrice: '0/1.000 có price hợp lệ (khuyết 100% từ nguồn raw; Occ 997, RV 1.000 vẫn hợp lệ)',
+    auditStatus: 'Đã xác minh (khuyết giá minh bạch)',
+  },
+  {
+    snapshotIso: '2026-03-30',
+    displayDate: '30/03/2026',
+    label: 't3 (Q3)',
+    rawStatus: 'HTTP 200 trên Inside Airbnb (listings 13,2 MB, calendar 19,6 MB, reviews 142,9 MB)',
+    filteredCounts: '1.000 listings · 365.000 calendar · 5.000 reviews',
+    lastScrapedRange: 'Cào quanh mốc 2026-03-30 (theo qa_report.csv)',
+    schemaAndPrice: '988/1.000 có price hợp lệ (Median 1.767,75 MXN, 20 outliers P01/P99)',
+    auditStatus: 'Đã xác minh khớp BTL',
+  },
+  {
+    snapshotIso: '2026-06-15',
+    displayDate: '15/06/2026',
+    label: 't4 (Q4)',
+    rawStatus: 'HTTP 200 trên Inside Airbnb (listings 18,4 MB, calendar 26,9 MB, reviews 167,7 MB)',
+    filteredCounts: '1.000 listings · 365.000 calendar · 5.000 reviews (1.719.730 review toàn thành phố)',
+    lastScrapedRange: 'Cào quanh mốc 2026-06-15 (theo qa_report.csv)',
+    schemaAndPrice: '980/1.000 có price hợp lệ (Median 1.940,0 MXN, 19 outliers P01/P99)',
+    auditStatus: 'Đã xác minh khớp BTL',
+  },
+];
+
+export const TIME_CONCEPTS_DISTINCTION = [
+  {
+    concept: 'Snapshot date',
+    meaning: 'Ngày phát hành bộ dữ liệu Inside Airbnb (khóa thư mục trong configs/mexico-city.yaml).',
+    exampleInBtl: '2025-09-27 (27/09/2025), 2025-12-29, 2026-03-30, 2026-06-15.',
+  },
+  {
+    concept: 'Download date',
+    meaning: 'Ngày nhóm thực hiện tải file từ server Inside Airbnb hoặc khôi phục từ bản sao lưu.',
+    exampleInBtl: 'Không dùng thay thế Snapshot date; t1 được tải trước khi server trả HTTP 403 và sao lưu trên Google Drive.',
+  },
+  {
+    concept: 'last_scraped',
+    meaning: 'Ngày thực tế crawler của Inside Airbnb thu thập từng listing (có thể lệch 1–2 ngày quanh Snapshot date).',
+    exampleInBtl: 'Ở t1 (2025-09-27): 261 listing có last_scraped = 2025-09-27 và 739 listing = 2025-09-28.',
+  },
+  {
+    concept: 'Calendar date',
+    meaning: 'Ngày lịch tương lai (365 ngày tới) của từng dòng trong calendar.csv.gz.',
+    exampleInBtl: 'Tại t1: chạy từ 2025-09-27 đến 2026-09-27 (365.000 dòng cho 1.000 căn; cột price 100% rỗng).',
+  },
+  {
+    concept: 'Review date',
+    meaning: 'Ngày khách lưu trú đăng bình luận trong reviews.csv.gz.',
+    exampleInBtl: 'Tại t1: trải từ 2011-04-02 đến 2025-09-28 (lọc theo review_id = id, không lọc theo listing_id).',
+  },
+  {
+    concept: 'Report date',
+    meaning: 'Ngày nhóm xuất báo cáo PDF / cập nhật tài liệu tổng hợp.',
+    exampleInBtl: 'Ngày lập reports/report.pdf; không phải mốc thời gian dữ liệu.',
+  },
+];
